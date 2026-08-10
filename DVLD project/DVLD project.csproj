@@ -366,6 +366,7 @@
       <DependentUpon>SearchLicenseControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Services\CountryClientService.cs" />
+    <Compile Include="Services\TestTypeClientService.cs" />
     <Compile Include="UserDetailsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

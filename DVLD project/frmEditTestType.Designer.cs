@@ -166,6 +166,7 @@
             this.Controls.Add(this.label5);
             this.Name = "frmEditTestType";
             this.Text = "Edit Test Type";
+            this.Load += new System.EventHandler(this.frmEditTestType_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -1,4 +1,6 @@
 ﻿using ApplicationTypesBuisnessLayer;
+using DTOs;
+using DVLD_project.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,15 +18,12 @@ namespace DVLD_project
     public partial class frmEditTestType : Form
     {
         int currentid;
+        private readonly TestTypeClientService _testTypeClientService;
         public frmEditTestType(int id)
         {
             InitializeComponent();
+            _testTypeClientService = new TestTypeClientService();
             currentid = id;
-            clsTestTypes TestType = clsTestTypes.FindTestType(id);
-            txtTitle.Text = TestType.title;
-            txtDescription.Text = TestType.description;
-            txtFees.Text = TestType.fees.ToString();
-            lbID.Text = id.ToString();
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -32,18 +31,32 @@ namespace DVLD_project
             this.Close();
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(txtTitle.Text) && !string.IsNullOrEmpty(txtFees.Text) && !string.IsNullOrEmpty(txtDescription.Text))
             {
-                clsTestTypes TestType = new clsTestTypes(currentid, txtTitle.Text,txtDescription.Text, int.Parse(txtFees.Text));
-                TestType.Save();
+                await _testTypeClientService.UpdateTestType(new TestTypeDTO {
+                    TestTypeId = currentid,
+                    TestTypeTitle = txtTitle.Text,
+                    TestTypeDescription = txtDescription.Text,
+                    TestTypeFees = int.Parse(txtFees.Text)
+
+                });
                 MessageBox.Show("Test Type Updated Successfully", "Congratulations", MessageBoxButtons.OK);
             }
             else
             {
                 MessageBox.Show("Enter Full Data", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private async void frmEditTestType_Load(object sender, EventArgs e)
+        {
+            var TestType = await _testTypeClientService.GetTestTypeByID(currentid);
+            txtTitle.Text = TestType.TestTypeTitle;
+            txtDescription.Text = TestType.TestTypeDescription;
+            txtFees.Text = TestType.TestTypeFees.ToString();
+            lbID.Text = currentid.ToString();
         }
     }
 }

@@ -15,6 +15,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DVLDContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<CountryService>();
+builder.Services.AddScoped<TestTypeService>();
 var app = builder.Build();
 
 
