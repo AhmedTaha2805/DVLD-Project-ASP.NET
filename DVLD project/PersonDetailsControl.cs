@@ -21,12 +21,10 @@ namespace DVLD_project
         public PersonDetailsControl()
         {
             InitializeComponent();
+            _countryClientService = new CountryClientService();
         }
 
-        public void SetCountryService(CountryClientService service)
-        {
-            _countryClientService = service;
-        }
+        
 
         public async void LoadPersonInfo(int id)
         {

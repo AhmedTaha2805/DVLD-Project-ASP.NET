@@ -54,6 +54,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.lbLoading = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -68,9 +69,9 @@
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.Location = new System.Drawing.Point(17, 25);
+            this.groupBox1.Location = new System.Drawing.Point(17, 62);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(822, 110);
+            this.groupBox1.Size = new System.Drawing.Size(887, 110);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Driving License Application Info";
@@ -167,9 +168,9 @@
             this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox2.Location = new System.Drawing.Point(17, 141);
+            this.groupBox2.Location = new System.Drawing.Point(17, 178);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(822, 256);
+            this.groupBox2.Size = new System.Drawing.Size(887, 256);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Application Basic Info";
@@ -345,14 +346,24 @@
             this.label4.TabIndex = 3;
             this.label4.Text = "ID:";
             // 
+            // lbLoading
+            // 
+            this.lbLoading.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbLoading.Location = new System.Drawing.Point(302, 18);
+            this.lbLoading.Name = "lbLoading";
+            this.lbLoading.Size = new System.Drawing.Size(331, 41);
+            this.lbLoading.TabIndex = 29;
+            this.lbLoading.Text = "Loading App Info.......";
+            // 
             // ApplicationInfoControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.lbLoading);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Name = "ApplicationInfoControl";
-            this.Size = new System.Drawing.Size(886, 409);
+            this.Size = new System.Drawing.Size(970, 453);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -389,5 +400,6 @@
         private System.Windows.Forms.Label lbStatus;
         private System.Windows.Forms.Label lbAppID;
         private System.Windows.Forms.LinkLabel lnkShowLicense;
+        private System.Windows.Forms.Label lbLoading;
     }
 }

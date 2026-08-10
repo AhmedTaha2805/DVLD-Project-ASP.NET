@@ -36,8 +36,7 @@ namespace DVLD_project.Services
         {
             var response = await _httpClient.GetAsync($"api/ApplicationType/GetApplicationTypeTitleById/{id}");
             response.EnsureSuccessStatusCode();
-            var json = await response.Content.ReadAsStringAsync();
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<string>(json);
+            return await response.Content.ReadAsStringAsync();
         }
 
         public async Task UpdateApplicationType(ApplicationTypeDTO applicationTypeDTO)

@@ -35,12 +35,12 @@ namespace DVLD_project
             return(btnSearchLicense);
         }
 
-        private void btnSearchLicense_Click(object sender, EventArgs e)
+        private async void btnSearchLicense_Click(object sender, EventArgs e)
         {
             bool IsFound = false;
             if (!string.IsNullOrWhiteSpace(txtFind.Text))
             {
-                IsFound = licenseInfoControl1.LoadLicenseInfoByID(int.Parse(txtFind.Text));
+                IsFound = await licenseInfoControl1.LoadLicenseInfoByID(int.Parse(txtFind.Text));
                 
                 if (IsFound)
                 {
@@ -52,9 +52,9 @@ namespace DVLD_project
             }
         }
 
-        public void LoadLicenseInfo(int LicenseID)
+        public async void LoadLicenseInfo(int LicenseID)
         {
-            licenseInfoControl1.LoadLicenseInfoByID(LicenseID);
+            await licenseInfoControl1.LoadLicenseInfoByID(LicenseID);
         }
 
         private void txtFind_KeyPress(object sender, KeyPressEventArgs e)

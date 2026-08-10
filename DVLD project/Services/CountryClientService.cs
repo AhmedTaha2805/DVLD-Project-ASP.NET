@@ -31,7 +31,6 @@ namespace DVLD_project.Services
             var response = await _httpClient.GetAsync("api/Country/GetAllCountries");
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
-
             return JsonConvert.DeserializeObject<List<CountryDTO>>(json);
         }
     }

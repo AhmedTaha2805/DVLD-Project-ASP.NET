@@ -65,7 +65,6 @@
             this.personDetailsControl1.Name = "personDetailsControl1";
             this.personDetailsControl1.Size = new System.Drawing.Size(772, 334);
             this.personDetailsControl1.TabIndex = 2;
-            this.personDetailsControl1.Load += new System.EventHandler(this.personDetailsControl1_Load);
             // 
             // frmPersonDetails
             // 
@@ -78,6 +77,7 @@
             this.Controls.Add(this.label1);
             this.Name = "frmPersonDetails";
             this.Text = "Person Details";
+            
             this.ResumeLayout(false);
 
         }

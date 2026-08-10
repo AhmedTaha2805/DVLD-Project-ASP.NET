@@ -1,6 +1,7 @@
 ﻿using ApplicationBuisnessLayer;
 using CurrentUserInformation;
 using DriversBuisnessLayer;
+using DVLD_project.Services;
 using InternationalLicensesBuisnessLayer;
 using LicenseClassesBuisnessLayer;
 using LicensesBuisnessLayer;
@@ -20,9 +21,11 @@ namespace DVLD_project
     public partial class frmRenewLicenseApplication : Form
     {
         int _LicenseID;
+        private readonly LicenseClassClientService _licenseClassClientService;
         public frmRenewLicenseApplication()
         {
             InitializeComponent();
+            _licenseClassClientService = new LicenseClassClientService();
             this.AcceptButton = searchLicenseControl1.BtnSearch();
         }
 
@@ -31,14 +34,14 @@ namespace DVLD_project
             this.Close();
         }
 
-        private void searchLicenseControl1_OnSearchClick(int LicenseID)
+        private async void searchLicenseControl1_OnSearchClick(int LicenseID)
         {
             lbOldLicenseID.Text = LicenseID.ToString();
             _LicenseID = LicenseID;
             clsLicenses License = clsLicenses.FindLicenseByLicenseID(LicenseID);
-            lbLicenseFees.Text = clsLicenseClasses.GetLicenseClassFees(License.LicenseClassID).ToString();
+            lbLicenseFees.Text = (await _licenseClassClientService.GetLicenseClassFeesById(License.LicenseClassID)).ToString();
             lbTotalFees.Text = (int.Parse(lbLicenseFees.Text) + int.Parse(lbAppFees.Text)).ToString();
-            lbExpirationDate.Text = DateTime.Now.AddYears(clsLicenseClasses.GetValidityLength(License.LicenseClassID)).ToString();
+            lbExpirationDate.Text = DateTime.Now.AddYears(await _licenseClassClientService.GetLicenseClassValidityLengthById(License.LicenseClassID)).ToString();
             if (!clsLicenses.IsExpired(LicenseID, DateTime.Now)) 
             {
                 btnSave.Enabled = false;
@@ -75,7 +78,7 @@ namespace DVLD_project
 
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             if (searchLicenseControl1.IsNull())
             {
@@ -99,7 +102,7 @@ namespace DVLD_project
             NewLicense.DriverID = Driver.DriverID;
             NewLicense.LicenseClassID = OldLicense.LicenseClassID;
             NewLicense.IssueDate = DateTime.Now;
-            NewLicense.ExpirationDate = DateTime.Now.AddYears(clsLicenseClasses.GetValidityLength(NewLicense.LicenseClassID));
+            NewLicense.ExpirationDate = DateTime.Now.AddYears(await _licenseClassClientService.GetLicenseClassValidityLengthById(NewLicense.LicenseClassID));
             NewLicense.notes = txtnotes.Text;
             NewLicense.PaidFees = int.Parse(lbLicenseFees.Text);
             NewLicense.IsActive = true;

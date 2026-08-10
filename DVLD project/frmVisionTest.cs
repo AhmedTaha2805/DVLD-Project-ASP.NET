@@ -13,6 +13,7 @@ using LicenseClassesBuisnessLayer;
 using PeopleBuisnessLayer;
 using ApplicationBuisnessLayer;
 using CurrentUserInformation;
+using DVLD_project.Services;
 
 
 namespace DVLD_project
@@ -23,37 +24,40 @@ namespace DVLD_project
         bool _Retake = false;
         int Person_ID;
         int AppointID;
+        int _AppID;
+        private readonly LicenseClassClientService _licenseClassClientService;
         public frmVisionTest(int id,int Appointid = -1,bool Retake = false,int RTAppID = -1)
         {
             InitializeComponent();
+            _licenseClassClientService = new LicenseClassClientService();
             AppointID = Appointid;
-            clsLocalLicenseApplication LDLApp = clsLocalLicenseApplication.FindApplication(id);
+            _Retake = Retake;
+            _AppID = id;
+        }
+
+        private async void frmVisionTest_Load(object sender, EventArgs e)
+        {
+            dateTimePicker1.MinDate = DateTime.Now;
+            clsLocalLicenseApplication LDLApp = clsLocalLicenseApplication.FindApplication(_AppID);
             clsApplications App = clsApplications.FindApplication(LDLApp.AppId);
-            lbAppID.Text = id.ToString();
-            lbClass.Text = clsLicenseClasses.GetLicenseClassName(LDLApp.LicenseClassID);
+            lbAppID.Text = _AppID.ToString();
+            lbClass.Text = await _licenseClassClientService.GetLicenseClassNameById(LDLApp.LicenseClassID);
             clsPeople person = clsPeople.FindPerson(App.PersonID);
             Person_ID = person.Id;
             lbName.Text = person.FullName();
             lbTrial.Text = clsTestAppointments.GetNumberOfTrials(LDLApp.LocalAppID, 1).ToString();
             lbFees.Text = "10";
-            if (Retake)
+            if (_Retake)
             {
                 groupBox2.Enabled = true;
                 lbTitle.Text = "Schedule Retake Test";
-                _Retake = Retake;
                 lbRetakeAppID.Text = clsApplications.GetNextID().ToString();
                 int total = Convert.ToInt32(lbFees.Text) + 5;
                 lbTotalFees.Text = total.ToString();
             }
-             
+
             IsDone = true;
 
-        }
-
-        private void frmVisionTest_Load(object sender, EventArgs e)
-        {
-            dateTimePicker1.MinDate = DateTime.Now;
-            
         }
 
         private void btnSave_Click(object sender, EventArgs e)

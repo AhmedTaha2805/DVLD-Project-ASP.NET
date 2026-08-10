@@ -12,9 +12,11 @@ namespace DVLD_project
 {
     public partial class frmPersonDetails : Form
     {
+        int _id;
         public frmPersonDetails(int id)
         {
             InitializeComponent();
+            _id = id;
             personDetailsControl1.LoadPersonInfo(id);
         }
 
@@ -23,9 +25,5 @@ namespace DVLD_project
             this.Close();
         }
 
-        private void personDetailsControl1_Load(object sender, EventArgs e)
-        {
-
-        }
     }
 }

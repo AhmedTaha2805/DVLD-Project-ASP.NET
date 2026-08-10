@@ -1,6 +1,7 @@
 ﻿using ApplicationBuisnessLayer;
 using CurrentUserInformation;
 using DriversBuisnessLayer;
+using DVLD_project.Services;
 using LicenseClassesBuisnessLayer;
 using LicensesBuisnessLayer;
 using PeopleBuisnessLayer;
@@ -19,9 +20,11 @@ namespace DVLD_project
     public partial class frmReplacment : Form
     {
         int _LicenseID;
+        private readonly LicenseClassClientService _licenseClassClientService;
         public frmReplacment()
         {
             InitializeComponent();
+            _licenseClassClientService = new LicenseClassClientService();
             this.AcceptButton = searchLicenseControl1.BtnSearch();
         }
 
@@ -57,7 +60,7 @@ namespace DVLD_project
             lbUsername.Text = CurrentUser.user.UserName;
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             if (searchLicenseControl1.IsNull())
             {
@@ -88,9 +91,9 @@ namespace DVLD_project
             NewLicense.DriverID = Driver.DriverID;
             NewLicense.LicenseClassID = OldLicense.LicenseClassID;
             NewLicense.IssueDate = DateTime.Now;
-            NewLicense.ExpirationDate = DateTime.Now.AddYears(clsLicenseClasses.GetValidityLength(NewLicense.LicenseClassID));
+            NewLicense.ExpirationDate = DateTime.Now.AddYears(await _licenseClassClientService.GetLicenseClassValidityLengthById(NewLicense.LicenseClassID));
             NewLicense.notes ="";
-            NewLicense.PaidFees = clsLicenseClasses.GetLicenseClassFees(OldLicense.LicenseClassID);
+            NewLicense.PaidFees =(int)await _licenseClassClientService.GetLicenseClassFeesById(OldLicense.LicenseClassID);
             NewLicense.IsActive = true;
             if (rbDamaged.Checked)
             {

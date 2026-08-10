@@ -1,6 +1,7 @@
 ﻿using ApplicationBuisnessLayer;
 using CurrentUserInformation;
 using DriversBuisnessLayer;
+using DVLD_project.Services;
 using LicenseClassesBuisnessLayer;
 using LicensesBuisnessLayer;
 using LocalDrivingLicenseApplicationsBuisnessLayer;
@@ -19,9 +20,11 @@ namespace DVLD_project
     public partial class frmIssueDrivingLicenseFirstTime : Form
     {
         int CLDLAppID;
+        private readonly LicenseClassClientService _licenseClassClientService;
         public frmIssueDrivingLicenseFirstTime(int LDLAppID)
         {
             InitializeComponent();
+            _licenseClassClientService = new LicenseClassClientService();
             CLDLAppID = LDLAppID;
             applicationInfoControl1.LoadAppInfo(LDLAppID);
         }
@@ -31,7 +34,7 @@ namespace DVLD_project
             this.Close();
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             clsLocalLicenseApplication LApp = clsLocalLicenseApplication.FindApplication(CLDLAppID);
             clsApplications App = clsApplications.FindApplication(LApp.AppId);
@@ -39,10 +42,10 @@ namespace DVLD_project
             license.AppID = LApp.AppId;
             license.LicenseClassID = LApp.LicenseClassID;
             license.IssueDate = DateTime.Now;
-            int length = clsLicenseClasses.GetValidityLength(license.LicenseClassID);
+            Byte length = await _licenseClassClientService.GetLicenseClassValidityLengthById(license.LicenseClassID);
             license.ExpirationDate = DateTime.Now.AddYears(length);
             license.notes = txtnotes.Text;
-            license.PaidFees = clsLicenseClasses.GetLicenseClassFees(license.LicenseClassID);
+            license.PaidFees = (int)await _licenseClassClientService.GetLicenseClassFeesById(license.LicenseClassID);
             license.IsActive = true;
             license.IssueReason = 1;
             license.CreatedByUserID = CurrentUser.user.UserID;

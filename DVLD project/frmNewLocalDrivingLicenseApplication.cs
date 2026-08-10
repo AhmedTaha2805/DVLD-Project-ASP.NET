@@ -13,24 +13,22 @@ using ApplicationBuisnessLayer;
 using LocalDrivingLicenseApplicationsBuisnessLayer;
 using CurrentUserInformation;
 using UsersBuisnessLayer;
+using DVLD_project.Services;
 
 namespace DVLD_project
 {
     public partial class frmNewLocalDrivingLicenseApplication : Form
     {
         int LAppID = -1;
+        private readonly LicenseClassClientService _licenseClassClientService;
         public frmNewLocalDrivingLicenseApplication(int id = -1)
         {
             InitializeComponent();
+            _licenseClassClientService = new LicenseClassClientService();
             this.AcceptButton = personDetailsWithFilter1.BtnSearch();
             lbDate.Text = DateTime.Now.ToString();
             lbFees.Text = "15";
             lbUsername.Text = CurrentUser.user.UserName;
-            DataTable dt = clsLicenseClasses.GetAllLicenseClasses();
-            foreach (DataRow dr in dt.Rows)
-            {
-                cbLicenseClass.Items.Add(dr["ClassName"].ToString());
-            }
             if (id != -1)
             {
                 LAppID = id;    
@@ -44,9 +42,6 @@ namespace DVLD_project
                 cbLicenseClass.SelectedIndex = LApp.LicenseClassID - 1;
                 personDetailsWithFilter1.LoadPersonInfo(App.PersonID);
             }           
-            
-            
-
         }
 
         private void btnNext_Click(object sender, EventArgs e)
@@ -59,10 +54,10 @@ namespace DVLD_project
             this.Close();
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             int personid = personDetailsWithFilter1.GetPersonID();
-            int LicenseClassID = clsLicenseClasses.GetLicenseClassID(cbLicenseClass.Text);
+            int LicenseClassID = await _licenseClassClientService.GetLicenseClassIdByClassName(cbLicenseClass.Text);
 
             if (personid == -1)
             {
@@ -107,6 +102,15 @@ namespace DVLD_project
                 MessageBox.Show("Application Added Successfully", "Congratulations", MessageBoxButtons.OK);
             }
             
+        }
+
+        private async void frmNewLocalDrivingLicenseApplication_Load(object sender, EventArgs e)
+        {
+            var LicenseClasses = await _licenseClassClientService.GetAllLicenseClasses();
+            foreach (var LicenseClass in LicenseClasses)
+            {
+                cbLicenseClass.Items.Add(LicenseClass.ClassName);
+            }
         }
     }
 }

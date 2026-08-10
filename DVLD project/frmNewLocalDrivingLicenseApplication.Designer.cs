@@ -257,6 +257,7 @@
             this.Controls.Add(this.btnClose);
             this.Name = "frmNewLocalDrivingLicenseApplication";
             this.Text = "New Local Driving License Application";
+            this.Load += new System.EventHandler(this.frmNewLocalDrivingLicenseApplication_Load);
             this.tabControl1.ResumeLayout(false);
             this.PersonalInfoTab.ResumeLayout(false);
             this.ApplicationInfoTab.ResumeLayout(false);

@@ -17,6 +17,7 @@ builder.Services.AddDbContext<DVLDContext>(options =>
 builder.Services.AddScoped<CountryService>();
 builder.Services.AddScoped<TestTypeService>();
 builder.Services.AddScoped<ApplicationTypeService>();
+builder.Services.AddScoped<LicenseClassService>();
 var app = builder.Build();
 
 

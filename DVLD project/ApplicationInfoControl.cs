@@ -20,17 +20,20 @@ namespace DVLD_project
     public partial class ApplicationInfoControl : UserControl
     {
         private readonly ApplicationTypeClientService _applicationClientService;
+        private readonly LicenseClassClientService _licenseClassClientService;
         public ApplicationInfoControl()
         {
             InitializeComponent();  
             _applicationClientService = new ApplicationTypeClientService();
+            _licenseClassClientService = new LicenseClassClientService();
         }
 
         public async void LoadAppInfo(int LDLAppID)
         {
+            lbLoading.Visible = true;
             clsLocalLicenseApplication licenseApplication = clsLocalLicenseApplication.FindApplication(LDLAppID);
             lbLDLAppID.Text = LDLAppID.ToString();
-            lbLicenseClass.Text = clsLicenseClasses.GetLicenseClassName(licenseApplication.LicenseClassID);
+            lbLicenseClass.Text = await _licenseClassClientService.GetLicenseClassNameById(licenseApplication.LicenseClassID);
             lbPassedTests.Text = $"{clsLocalLicenseApplication.FindNumberOfPassedTests(LDLAppID).ToString()}/3";
             clsApplications App = clsApplications.FindApplication(licenseApplication.AppId);
             lbAppID.Text = App.AppID.ToString();
@@ -46,7 +49,7 @@ namespace DVLD_project
             if(lbStatus.Text == "Completed"){
                 lnkShowLicense.Enabled = true;
             }
-
+            lbLoading.Visible = false;
         }
 
         private int GetPersonID()

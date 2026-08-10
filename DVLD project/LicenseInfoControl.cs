@@ -1,5 +1,6 @@
 ﻿using ApplicationBuisnessLayer;
 using DriversBuisnessLayer;
+using DVLD_project.Services;
 using LicenseClassesBuisnessLayer;
 using LicensesBuisnessLayer;
 using LocalDrivingLicenseApplicationsBuisnessLayer;
@@ -18,18 +19,20 @@ namespace DVLD_project
 {
     public partial class LicenseInfoControl : UserControl
     {
+        private readonly LicenseClassClientService _licenseClassClientService;
 
         public LicenseInfoControl()
         {
             InitializeComponent();
+            _licenseClassClientService = new LicenseClassClientService();
         }
 
-        public void LoadLicenseInfo(int LicenseID)
+        public async void LoadLicenseInfo(int LicenseID)
         {
             clsLicenses license = clsLicenses.FindLicenseByLicenseID(LicenseID);
             clsDrivers driver = clsDrivers.FindDriverByID(license.DriverID);
             clsPeople person = clsPeople.FindPerson(driver.PersonID);
-            lbClass.Text = clsLicenseClasses.GetLicenseClassName(license.LicenseClassID);
+            lbClass.Text = await _licenseClassClientService.GetLicenseClassNameById(license.LicenseClassID);
             lbName.Text = person.FullName();
             lbNationalNo.Text = person.NationalNum;
             if (person.Gender == 0)
@@ -56,7 +59,7 @@ namespace DVLD_project
             }
         }
 
-        public bool LoadLicenseInfoByID(int LicenseID)
+        public async Task<bool> LoadLicenseInfoByID(int LicenseID)
         {
             clsLicenses license = clsLicenses.FindLicenseByLicenseID(LicenseID);
             if (license == null)
@@ -64,7 +67,7 @@ namespace DVLD_project
                 MessageBox.Show("License Not Found","Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
                 return false;
             }
-            lbClass.Text = clsLicenseClasses.GetLicenseClassName(license.LicenseClassID);
+            lbClass.Text = await _licenseClassClientService.GetLicenseClassNameById(license.LicenseClassID);
             clsApplications App = clsApplications.FindApplication(license.AppID);
             clsPeople person = clsPeople.FindPerson(App.PersonID);
             lbName.Text = person.FullName();

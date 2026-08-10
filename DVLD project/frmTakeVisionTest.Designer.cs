@@ -352,6 +352,7 @@
             this.Controls.Add(this.groupBox1);
             this.Name = "frmTakeVisionTest";
             this.Text = "Vision Test";
+            this.Load += new System.EventHandler(this.frmTakeVisionTest_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();

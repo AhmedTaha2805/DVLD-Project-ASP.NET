@@ -1,5 +1,6 @@
 ﻿using ApplicationBuisnessLayer;
 using CurrentUserInformation;
+using DVLD_project.Services;
 using LicenseClassesBuisnessLayer;
 using LocalDrivingLicenseApplicationsBuisnessLayer;
 using PeopleBuisnessLayer;
@@ -20,19 +21,15 @@ namespace DVLD_project
     public partial class frmTakeWrittenTest : Form
     {
         int AppointID;
+        int _LDLAppID;
+        private readonly LicenseClassClientService _licenseClassClientService;
         public frmTakeWrittenTest(int LDLAppID, int AppointmentID, string Date)
         {
             InitializeComponent();
+            _licenseClassClientService = new LicenseClassClientService();
             AppointID = AppointmentID;
             lbDate.Text = Date;
-            clsLocalLicenseApplication LDLApp = clsLocalLicenseApplication.FindApplication(LDLAppID);
-            clsApplications App = clsApplications.FindApplication(LDLApp.AppId);
-            lbAppID.Text = LDLAppID.ToString();
-            lbClass.Text = clsLicenseClasses.GetLicenseClassName(LDLApp.LicenseClassID);
-            clsPeople person = clsPeople.FindPerson(App.PersonID);
-            lbName.Text = person.FullName();
-            lbTrial.Text = clsTestAppointments.GetNumberOfTrials(LDLApp.LocalAppID, 2).ToString();
-            lbFees.Text = "20";
+            _LDLAppID = LDLAppID;
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -57,6 +54,18 @@ namespace DVLD_project
             btnSave.Enabled = false;
             lbTestID.Text = Test.TestID.ToString();
             MessageBox.Show("Test Done Successfully", "Congratulations", MessageBoxButtons.OK);
+        }
+
+        private async void frmTakeWrittenTest_Load(object sender, EventArgs e)
+        {
+            clsLocalLicenseApplication LDLApp = clsLocalLicenseApplication.FindApplication(_LDLAppID);
+            clsApplications App = clsApplications.FindApplication(LDLApp.AppId);
+            lbAppID.Text = _LDLAppID.ToString();
+            lbClass.Text = await _licenseClassClientService.GetLicenseClassNameById(LDLApp.LicenseClassID);
+            clsPeople person = clsPeople.FindPerson(App.PersonID);
+            lbName.Text = person.FullName();
+            lbTrial.Text = clsTestAppointments.GetNumberOfTrials(LDLApp.LocalAppID, 2).ToString();
+            lbFees.Text = "20";
         }
     }
 }
