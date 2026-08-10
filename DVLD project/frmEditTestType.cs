@@ -39,7 +39,7 @@ namespace DVLD_project
                     TestTypeId = currentid,
                     TestTypeTitle = txtTitle.Text,
                     TestTypeDescription = txtDescription.Text,
-                    TestTypeFees = int.Parse(txtFees.Text)
+                    TestTypeFees = decimal.Parse(txtFees.Text)
 
                 });
                 MessageBox.Show("Test Type Updated Successfully", "Congratulations", MessageBoxButtons.OK);

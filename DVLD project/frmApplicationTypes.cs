@@ -8,25 +8,31 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationTypesBuisnessLayer;
+using DVLD_project.Services;
 
 namespace DVLD_project
 {
     public partial class frmApplicationTypes : Form
     {
+        private readonly ApplicationTypeClientService _applicationTypeClientService;
         public frmApplicationTypes()
         {
             InitializeComponent();
+            lbLoading.Visible = true;
+            _applicationTypeClientService = new ApplicationTypeClientService();
         }
 
-        private void RefreshDataGrid()
+        private async Task RefreshDataGrid()
         {
-            AppTypesdatagrid.DataSource = clsApplicationTypes.GetAllApplicationsTypes();
+            lbLoading.Visible = true;
+            AppTypesdatagrid.DataSource = await _applicationTypeClientService.GetAllApplicationTypes();
+            lbLoading.Visible = false;
         }
 
-        private void frmApplicationTypes_Load(object sender, EventArgs e)
+        private async void frmApplicationTypes_Load(object sender, EventArgs e)
         {
-            RefreshDataGrid();
-            lbRecord.Text = (AppTypesdatagrid.RowCount - 1).ToString();
+            await RefreshDataGrid();
+            lbRecord.Text = (AppTypesdatagrid.RowCount).ToString();
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -45,13 +51,13 @@ namespace DVLD_project
             }
         }
 
-        private void editApplicationTypeToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void editApplicationTypeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             
             int id = int.Parse(AppTypesdatagrid.SelectedRows[0].Cells["ApplicationTypeID"].Value.ToString());
             frmEditAppTypes frm = new frmEditAppTypes(id);
             frm.ShowDialog();
-            RefreshDataGrid();
+            await RefreshDataGrid();
         }
     }
 }

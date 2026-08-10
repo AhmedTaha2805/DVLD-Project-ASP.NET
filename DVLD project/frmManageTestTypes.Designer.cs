@@ -37,6 +37,7 @@
             this.editTestTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.btnClose = new System.Windows.Forms.Button();
+            this.lbLoading = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.TestTypesdatagrid)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -46,7 +47,7 @@
             // 
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.label5.Location = new System.Drawing.Point(335, 177);
+            this.label5.Location = new System.Drawing.Point(334, 168);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(301, 30);
             this.label5.TabIndex = 26;
@@ -57,12 +58,12 @@
             this.TestTypesdatagrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.TestTypesdatagrid.BackgroundColor = System.Drawing.SystemColors.Control;
             this.TestTypesdatagrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.TestTypesdatagrid.Location = new System.Drawing.Point(43, 226);
+            this.TestTypesdatagrid.Location = new System.Drawing.Point(43, 210);
             this.TestTypesdatagrid.Name = "TestTypesdatagrid";
             this.TestTypesdatagrid.RowHeadersWidth = 51;
             this.TestTypesdatagrid.RowTemplate.Height = 24;
             this.TestTypesdatagrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.TestTypesdatagrid.Size = new System.Drawing.Size(825, 246);
+            this.TestTypesdatagrid.Size = new System.Drawing.Size(825, 276);
             this.TestTypesdatagrid.TabIndex = 25;
             this.TestTypesdatagrid.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.TestTypesdatagrid_CellMouseDown);
             // 
@@ -129,12 +130,22 @@
             this.btnClose.UseVisualStyleBackColor = false;
             this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
             // 
+            // lbLoading
+            // 
+            this.lbLoading.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbLoading.Location = new System.Drawing.Point(358, 320);
+            this.lbLoading.Name = "lbLoading";
+            this.lbLoading.Size = new System.Drawing.Size(205, 41);
+            this.lbLoading.TabIndex = 28;
+            this.lbLoading.Text = "Loading.......";
+            // 
             // frmManageTestTypes
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnClose;
-            this.ClientSize = new System.Drawing.Size(904, 550);
+            this.ClientSize = new System.Drawing.Size(904, 551);
+            this.Controls.Add(this.lbLoading);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.TestTypesdatagrid);
@@ -162,5 +173,6 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem editTestTypeToolStripMenuItem;
+        private System.Windows.Forms.Label lbLoading;
     }
 }

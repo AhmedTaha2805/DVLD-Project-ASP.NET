@@ -13,17 +13,20 @@ using ApplicationTypesBuisnessLayer;
 using LicenseClassesBuisnessLayer;
 using PeopleBuisnessLayer;
 using UsersBuisnessLayer;
+using DVLD_project.Services;
 
 namespace DVLD_project
 {
     public partial class ApplicationInfoControl : UserControl
     {
+        private readonly ApplicationTypeClientService _applicationClientService;
         public ApplicationInfoControl()
         {
-            InitializeComponent();                
+            InitializeComponent();  
+            _applicationClientService = new ApplicationTypeClientService();
         }
 
-        public void LoadAppInfo(int LDLAppID)
+        public async void LoadAppInfo(int LDLAppID)
         {
             clsLocalLicenseApplication licenseApplication = clsLocalLicenseApplication.FindApplication(LDLAppID);
             lbLDLAppID.Text = LDLAppID.ToString();
@@ -33,7 +36,7 @@ namespace DVLD_project
             lbAppID.Text = App.AppID.ToString();
             lbStatus.Text = clsApplications.GetStatus(App.AppStatus);
             lbFees.Text = App.PaidFees.ToString();
-            lbType.Text = clsApplicationTypes.GetApplicationType(App.AppTypeID);
+            lbType.Text = await _applicationClientService.GetApplicationTypeTitleById(App.AppTypeID);
             clsPeople person = clsPeople.FindPerson(App.PersonID);
             lbApplicantName.Text = $"{person.FirstName} {person.SecondName} {person.ThirdName} {person.LastName} ";
             lbDate.Text = App.AppDate.ToString();

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DVLD_WebApi.CustomExceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace DVLD_WebApi.MiddleWares
 {
@@ -16,13 +17,13 @@ namespace DVLD_WebApi.MiddleWares
             {
                 await _next(context);
             }
-            catch (DbUpdateException ex)
+            catch (NotFoundException ex)
             {
                 context.Response.StatusCode = 404;
                 context.Response.ContentType = "application/json";
                 await context.Response.WriteAsync(ex.Message);
             }
-            catch (ArgumentException ex)
+            catch (ValidationException ex)
             {
                 context.Response.StatusCode = 400;
                 context.Response.ContentType = "application/json";

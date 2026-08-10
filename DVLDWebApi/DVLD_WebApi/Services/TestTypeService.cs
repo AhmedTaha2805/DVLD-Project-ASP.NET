@@ -1,5 +1,7 @@
 ﻿using DTOs;
+using DVLD_WebApi.CustomExceptions;
 using DVLD_WebApi.Data;
+using DVLD_WebApi.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DVLD_WebApi.Services
@@ -27,7 +29,7 @@ namespace DVLD_WebApi.Services
 
         public async Task<TestTypeDTO> GetTestTypeById(int testTypeId)
         {
-            var testType = await _context.TestTypes.AsNoTracking().FirstOrDefaultAsync(c => c.TestTypeId == testTypeId);
+            var testType = await _context.TestTypes.AsNoTracking().SingleOrDefaultAsync(c => c.TestTypeId == testTypeId);
             if (testType != null)
             {
                 return new TestTypeDTO
@@ -40,13 +42,13 @@ namespace DVLD_WebApi.Services
             }
             else
             {
-                throw new Exception($"Test type with ID {testTypeId} not found.");
+                throw new NotFoundException($"Test type with ID {testTypeId} not found.");
             }
         }
 
         public async Task UpdateTestType(TestTypeDTO testTypeDTO)
         {
-            var testType = await _context.TestTypes.FirstOrDefaultAsync(c => c.TestTypeId == testTypeDTO.TestTypeId);
+            var testType = await _context.TestTypes.SingleOrDefaultAsync(c => c.TestTypeId == testTypeDTO.TestTypeId);
             if (testType != null)
             {
                 testType.TestTypeTitle = testTypeDTO.TestTypeTitle;
@@ -56,9 +58,8 @@ namespace DVLD_WebApi.Services
             }
             else
             {
-                throw new Exception($"Test type with ID {testTypeDTO.TestTypeId} not found.");
+                throw new NotFoundException($"Test type with ID {testTypeDTO.TestTypeId} not found.");
             }
-
         }
     }
 }

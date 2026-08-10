@@ -16,6 +16,7 @@ builder.Services.AddDbContext<DVLDContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<CountryService>();
 builder.Services.AddScoped<TestTypeService>();
+builder.Services.AddScoped<ApplicationTypeService>();
 var app = builder.Build();
 
 

@@ -38,6 +38,7 @@ namespace ApplicationTypesBuisnessLayer
             {
                 return null;
             }
+            
         }
 
         public static DataTable GetAllApplicationsTypes()

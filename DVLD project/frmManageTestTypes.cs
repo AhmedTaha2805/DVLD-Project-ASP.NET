@@ -1,4 +1,5 @@
 ﻿using ApplicationTypesBuisnessLayer;
+using DVLD_project.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,14 +15,19 @@ namespace DVLD_project
 {
     public partial class frmManageTestTypes : Form
     {
+        private readonly TestTypeClientService _testTypeClientService;
         public frmManageTestTypes()
         {
             InitializeComponent();
+            _testTypeClientService = new TestTypeClientService();
+            lbLoading.Visible = true;
         }
 
-        private void RefreshDataGrid()
+        private async Task RefreshDataGrid()
         {
-            TestTypesdatagrid.DataSource = clsTestTypes.GetAllTestTypes();
+            lbLoading.Visible = true;
+            TestTypesdatagrid.DataSource = await _testTypeClientService.GetAllTestTypes();
+            lbLoading.Visible = false;
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -29,10 +35,10 @@ namespace DVLD_project
             this.Close();
         }
 
-        private void frmManageTestTypes_Load(object sender, EventArgs e)
+        private async void frmManageTestTypes_Load(object sender, EventArgs e)
         {
-            RefreshDataGrid();
-            lbRecord.Text = (TestTypesdatagrid.RowCount - 1).ToString();
+            await RefreshDataGrid();
+            lbRecord.Text = (TestTypesdatagrid.RowCount).ToString();
         }
 
         private void TestTypesdatagrid_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
@@ -46,12 +52,11 @@ namespace DVLD_project
             }
         }
 
-        private void editTestTypeToolStripMenuItem_Click(object sender, EventArgs e) { 
+        private async void editTestTypeToolStripMenuItem_Click(object sender, EventArgs e) { 
         int id = int.Parse(TestTypesdatagrid.SelectedRows[0].Cells["TestTypeID"].Value.ToString());
         frmEditTestType frm = new frmEditTestType(id);
         frm.ShowDialog();
-        RefreshDataGrid();
-
+        await RefreshDataGrid();
     }
     }
 }

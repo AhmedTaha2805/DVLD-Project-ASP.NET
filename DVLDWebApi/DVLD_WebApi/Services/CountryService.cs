@@ -1,4 +1,5 @@
 ﻿using DTOs;
+using DVLD_WebApi.CustomExceptions;
 using DVLD_WebApi.Data;
 using DVLD_WebApi.Models;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +21,7 @@ namespace DVLD_WebApi.Services
             }
             else
             {
-                throw new Exception($"Country with ID {countryid} not found.");
+                throw new NotFoundException($"Country with ID {countryid} not found.");
             }
         }
 
