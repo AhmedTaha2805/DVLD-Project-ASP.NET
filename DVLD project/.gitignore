@@ -1,0 +1,6 @@
+bin/
+obj/
+*.mdf
+*.idf
+*.exe
+app.config
