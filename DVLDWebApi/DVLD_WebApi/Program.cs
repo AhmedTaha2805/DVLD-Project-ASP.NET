@@ -19,6 +19,7 @@ builder.Services.AddScoped<TestTypeService>();
 builder.Services.AddScoped<ApplicationTypeService>();
 builder.Services.AddScoped<LicenseClassService>();
 builder.Services.AddScoped<TestService>();
+builder.Services.AddScoped<TestAppointmentService>();
 var app = builder.Build();
 
 

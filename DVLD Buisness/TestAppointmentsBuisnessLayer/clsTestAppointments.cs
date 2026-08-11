@@ -34,7 +34,7 @@ namespace TestAppointmentsBuisnessLayer
         public void AddTestAppointment()
         {
             this.AppointmentID =  TestAppointmentsDataAccess.AddTestAppointment(this.TestTypeID,this.LocalDrivingLicenseApplicationID,this.AppointmentDate,this.PaidFees,this.CreatedByUserID,this.IsLocked,this.RetakeTestApplicationID);
-        }
+        } 
 
         public static int GetNumberOfTrials(int LDLAppID , int TestTypeID)
         {
