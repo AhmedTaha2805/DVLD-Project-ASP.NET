@@ -24,8 +24,6 @@ namespace DVLD_project
             _countryClientService = new CountryClientService();
         }
 
-        
-
         public async void LoadPersonInfo(int id)
         {
             

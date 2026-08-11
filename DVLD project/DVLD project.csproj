@@ -368,6 +368,7 @@
     <Compile Include="Services\ApplicationTypeClientService.cs" />
     <Compile Include="Services\CountryClientService.cs" />
     <Compile Include="Services\LicenseClassClientService.cs" />
+    <Compile Include="Services\TestClientService.cs" />
     <Compile Include="Services\TestTypeClientService.cs" />
     <Compile Include="UserDetailsControl.cs">
       <SubType>UserControl</SubType>

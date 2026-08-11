@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationBuisnessLayer;
+using DVLD_project.Services;
 using LicensesBuisnessLayer;
 using LocalDrivingLicenseApplicationsBuisnessLayer;
 using TestAppointmentsBuisnessLayer;
@@ -18,10 +19,11 @@ namespace DVLD_project
 {
     public partial class frmLocalDrivingLicenseApplications : Form
     {
+        private readonly TestClientService _testClient;
         public frmLocalDrivingLicenseApplications()
         {
             InitializeComponent();
-            
+            _testClient = new TestClientService();
         }
 
         private void RefreshDataGrid()
@@ -230,7 +232,7 @@ namespace DVLD_project
             RefreshDataGrid();
         }
 
-        private void deleteApplicationToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void deleteApplicationToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string status = LocalAppsdatagrid.SelectedRows[0].Cells["Status"].Value.ToString();
             if (status == "Completed")
@@ -242,7 +244,7 @@ namespace DVLD_project
             DataTable dt = clsTestAppointments.GetAllAppointmentsWithID(id);
             foreach (DataRow row in dt.Rows)
             {
-                clsTests.DeleteTestWithAppointmentID(Convert.ToInt32(row["Appointment ID"].ToString()));
+                await _testClient.DeleteTestWithAppointmentId(Convert.ToInt32(row["Appointment ID"].ToString()));
             }
             clsTestAppointments.DeleteAppointmentsWithAppID(id);
             clsLocalLicenseApplication application = clsLocalLicenseApplication.FindApplication(id);

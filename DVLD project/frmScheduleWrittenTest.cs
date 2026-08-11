@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DVLD_project.Services;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,10 +16,12 @@ namespace DVLD_project
     public partial class frmScheduleWrittenTest : Form
     {
         int CLDLAppID;
-        
+        private readonly TestClientService _testClient;
+
         public frmScheduleWrittenTest(int LDLAppID)
         {
             InitializeComponent();
+            _testClient = new TestClientService();
             CLDLAppID = LDLAppID;
             applicationInfoControl1.LoadAppInfo(LDLAppID);
         }
@@ -34,19 +37,19 @@ namespace DVLD_project
             lbRecord.Text = Appointmentsdatagrid.RowCount.ToString();
         }
 
-        private void btnSchedule_Click(object sender, EventArgs e)
+        private async void btnSchedule_Click(object sender, EventArgs e)
         {
             if (clsTestAppointments.HasUnlockedAppointment(CLDLAppID, 2))
             {
                 MessageBox.Show("Person has an unlocked appointment", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            if (clsTests.PersonPassedThisTestBefore(CLDLAppID, 2))
+            if (await _testClient.PersonPassedThisTestBefore(CLDLAppID, 2))
             {
                 MessageBox.Show("Person passed this test before", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            if (clsTests.PersonFailedThisTest(CLDLAppID, 2))
+            if (await _testClient.PersonFailedThisTestBefore(CLDLAppID, 2))
             {
                 frmWrittenTest frm = new frmWrittenTest(CLDLAppID,-1, true, applicationInfoControl1.AppID());
                 frm.ShowDialog();

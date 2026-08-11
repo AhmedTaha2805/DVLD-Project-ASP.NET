@@ -18,6 +18,7 @@ builder.Services.AddScoped<CountryService>();
 builder.Services.AddScoped<TestTypeService>();
 builder.Services.AddScoped<ApplicationTypeService>();
 builder.Services.AddScoped<LicenseClassService>();
+builder.Services.AddScoped<TestService>();
 var app = builder.Build();
 
 

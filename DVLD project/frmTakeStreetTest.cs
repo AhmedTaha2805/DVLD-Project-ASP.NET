@@ -1,5 +1,6 @@
 ﻿using ApplicationBuisnessLayer;
 using CurrentUserInformation;
+using DTOs;
 using DVLD_project.Services;
 using LicenseClassesBuisnessLayer;
 using LocalDrivingLicenseApplicationsBuisnessLayer;
@@ -10,6 +11,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -23,10 +25,12 @@ namespace DVLD_project
         int AppointID;
         int _LDLAppID;
         private readonly LicenseClassClientService _licenseClassClientService;
+        private readonly TestClientService _testClient;
         public frmTakeStreetTest(int LDLAppID, int AppointmentID, string Date)
         {
             InitializeComponent();
             _licenseClassClientService = new LicenseClassClientService();
+            _testClient = new TestClientService();
             lbDate.Text = Date;
             AppointID = AppointmentID;
             _LDLAppID = LDLAppID;   
@@ -37,24 +41,32 @@ namespace DVLD_project
             this.Close();
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             if (!rbPass.Checked && !rbFail.Checked)
             {
                 MessageBox.Show("Choose The Result", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            clsTests Test = new clsTests();
-            Test.TestAppointmentID = AppointID;
-            Test.CreatedByUserID = CurrentUser.user.UserID;
-            Test.notes = txtnotes.Text;
-            Test.TestResult = rbPass.Checked ? 1 : 0;
-            Test.AddTest();
+            //clsTests Test = new clsTests();
+            //Test.TestAppointmentID = AppointID;
+            //Test.CreatedByUserID = CurrentUser.user.UserID;
+            //Test.notes = txtnotes.Text;
+            //Test.TestResult = rbPass.Checked ? 1 : 0;
+            //Test.AddTest();
+            var Test = await _testClient.AddTest(new TestDTO
+            {
+                TestAppointmentId = AppointID,
+                CreatedByUserId = CurrentUser.user.UserID,
+                Notes = txtnotes.Text,
+                TestResult = rbPass.Checked ? true : false
+            });
             clsTestAppointments.LockAppointment(AppointID);
             btnSave.Enabled = false;
-            lbTestID.Text = Test.TestID.ToString();
+            lbTestID.Text = Test.TestId.ToString();
             MessageBox.Show("Test Done Successfully", "Congratulations", MessageBoxButtons.OK);
         }
+
 
         private async void frmTakeStreetTest_Load(object sender, EventArgs e)
         {
