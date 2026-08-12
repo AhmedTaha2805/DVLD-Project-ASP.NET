@@ -20,9 +20,11 @@ namespace DVLD_project
     public partial class frmLocalDrivingLicenseApplications : Form
     {
         private readonly TestClientService _testClient;
+        private readonly TestAppointmentClientService _testAppointmentClient;
         public frmLocalDrivingLicenseApplications()
         {
             InitializeComponent();
+            _testAppointmentClient = new TestAppointmentClientService();
             _testClient = new TestClientService();
         }
 
@@ -241,12 +243,12 @@ namespace DVLD_project
                 return;
             }
             int id = int.Parse(LocalAppsdatagrid.SelectedRows[0].Cells["L.D.L AppID"].Value.ToString());
-            DataTable dt = clsTestAppointments.GetAllAppointmentsWithID(id);
-            foreach (DataRow row in dt.Rows)
+            var list = await _testAppointmentClient.GetTestAppointmentsIdsByLDLAppId(id);
+            foreach (var n in list)
             {
-                await _testClient.DeleteTestWithAppointmentId(Convert.ToInt32(row["Appointment ID"].ToString()));
+                await _testClient.DeleteTestWithAppointmentId(n);
             }
-            clsTestAppointments.DeleteAppointmentsWithAppID(id);
+            await _testAppointmentClient.DeleteAppointmentsWithLDLAppId(id);
             clsLocalLicenseApplication application = clsLocalLicenseApplication.FindApplication(id);
             clsLocalLicenseApplication.DeleteApplication(id);
            

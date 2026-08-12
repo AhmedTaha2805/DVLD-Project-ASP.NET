@@ -12,9 +12,9 @@ namespace DVLD_project.Services
     public class TestAppointmentClientService
     {
         private readonly HttpClient _httpClient;
-        public TestAppointmentClientService(HttpClient httpClient)
+        public TestAppointmentClientService()
         {
-            _httpClient = httpClient;
+            _httpClient = new HttpClient();
             _httpClient.BaseAddress = _httpClient.BaseAddress = new Uri("https://localhost:7008/api/TestAppointment/");
         }
 
@@ -57,6 +57,28 @@ namespace DVLD_project.Services
             var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<bool>(json);
         }
-         
+
+        public async Task UpdateAppointmentDate(int testAppointmentId, DateTime Date)
+        {
+            var Response = await _httpClient.PutAsync($"UpdateAppointmentDate/{testAppointmentId}/{Date}", null);
+            Response.EnsureSuccessStatusCode();
+
+        }
+
+        public async Task DeleteAppointmentsWithLDLAppId(int LDLAppId)
+        {
+            var response = await _httpClient.DeleteAsync($"DeleteAppointmentsWithLDLAppId/{LDLAppId}");
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task<List<int>> GetTestAppointmentsIdsByLDLAppId( int LDLAppId)
+        {
+            var response = await _httpClient.GetAsync($"GetTestAppointmentsIdsByLDLAppId/{LDLAppId}");
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<int>>(json);
+        }
+
+
     }
 }

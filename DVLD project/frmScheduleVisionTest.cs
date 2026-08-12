@@ -17,10 +17,12 @@ namespace DVLD_project
     {
         int CLDLAppID;
         private readonly TestClientService _testClient;
+        private readonly TestAppointmentClientService _testAppointmentClient;
         public frmScheduleVisionTest(int LDLAppID)
         {
             InitializeComponent();
             _testClient = new TestClientService();
+            _testAppointmentClient = new TestAppointmentClientService();
             CLDLAppID = LDLAppID;
             RefreshDataGrid();
             applicationInfoControl1.LoadAppInfo(LDLAppID);
@@ -31,20 +33,20 @@ namespace DVLD_project
             this.Close();
         }
 
-        private void RefreshDataGrid()
+        private async Task RefreshDataGrid()
         {
-            Appointmentsdatagrid.DataSource = clsTestAppointments.GetAppointments(CLDLAppID,1);
+            Appointmentsdatagrid.DataSource = await _testAppointmentClient.GetTestAppointmentsByLDLAppId(CLDLAppID,1);
         }
 
-        private void frmScheduleVisionTest_Load(object sender, EventArgs e)
+        private async Task frmScheduleVisionTest_Load(object sender, EventArgs e)
         {
-            
+            await RefreshDataGrid();
             lbRecord.Text = Appointmentsdatagrid.RowCount.ToString();
         }
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            if (clsTestAppointments.HasUnlockedAppointment(CLDLAppID, 1))
+            if (await _testAppointmentClient.HasUnLockedAppointment(CLDLAppID, 1))
             {
                 MessageBox.Show("Person has an unlocked appointment","Error",MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
