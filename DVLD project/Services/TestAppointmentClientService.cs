@@ -15,10 +15,10 @@ namespace DVLD_project.Services
         public TestAppointmentClientService()
         {
             _httpClient = new HttpClient();
-            _httpClient.BaseAddress = _httpClient.BaseAddress = new Uri("https://localhost:7008/api/TestAppointment/");
+            _httpClient.BaseAddress = new Uri("https://localhost:7008/api/TestAppointment/");
         }
 
-        public async Task<TestAppointmentDTO> AddTest(TestAppointmentDTO testAppointmentDTO)
+        public async Task<TestAppointmentDTO> AddTestAppointment(TestAppointmentDTO testAppointmentDTO)
         {
             var jsonContent = JsonConvert.SerializeObject(testAppointmentDTO);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");

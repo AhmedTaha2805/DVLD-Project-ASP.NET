@@ -20,6 +20,7 @@ builder.Services.AddScoped<ApplicationTypeService>();
 builder.Services.AddScoped<LicenseClassService>();
 builder.Services.AddScoped<TestService>();
 builder.Services.AddScoped<TestAppointmentService>();
+builder.Services.AddScoped<ApplicationService>();
 var app = builder.Build();
 
 

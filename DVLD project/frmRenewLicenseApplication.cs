@@ -1,6 +1,7 @@
 ﻿using ApplicationBuisnessLayer;
 using CurrentUserInformation;
 using DriversBuisnessLayer;
+using DTOs;
 using DVLD_project.Services;
 using InternationalLicensesBuisnessLayer;
 using LicenseClassesBuisnessLayer;
@@ -22,9 +23,11 @@ namespace DVLD_project
     {
         int _LicenseID;
         private readonly LicenseClassClientService _licenseClassClientService;
+        private readonly ApplicationClientService _applicationClientService;
         public frmRenewLicenseApplication()
         {
             InitializeComponent();
+            _applicationClientService = new ApplicationClientService();
             _licenseClassClientService = new LicenseClassClientService();
             this.AcceptButton = searchLicenseControl1.BtnSearch();
         }
@@ -84,21 +87,23 @@ namespace DVLD_project
             {
                 return;
             }
-            clsApplications App = new clsApplications();
-            App.AppDate = DateTime.Now;
-            App.AppTypeID = 2;
-            App.AppStatus = 3;
-            App.LastStatusDate = DateTime.Now;
-            App.PaidFees = 7;
-            App.UserID = CurrentUser.user.UserID;
+            
             clsLicenses OldLicense = clsLicenses.FindLicenseByLicenseID(int.Parse(lbOldLicenseID.Text));
             clsLicenses.DeActivateLicense(_LicenseID);
             clsDrivers Driver = clsDrivers.FindDriverByID(OldLicense.DriverID);
-            App.PersonID = Driver.PersonID;
-            App.AddApplication();
-            lbRenewAppID.Text = App.AppID.ToString();
+            var App = await _applicationClientService.AddApplication(new ApplicationDTO
+            {
+                ApplicantPersonId = Driver.PersonID,
+                ApplicationDate = DateTime.Now,
+                ApplicationTypeId = 2,
+                ApplicationStatus = 3,
+                LastStatusDate = DateTime.Now,
+                PaidFees = 7,
+                CreatedByUserId = CurrentUser.user.UserID
+            });
+            lbRenewAppID.Text = App.ApplicationId.ToString();
             clsLicenses NewLicense = new clsLicenses();
-            NewLicense.AppID = App.AppID;
+            NewLicense.AppID = App.ApplicationId;
             NewLicense.DriverID = Driver.DriverID;
             NewLicense.LicenseClassID = OldLicense.LicenseClassID;
             NewLicense.IssueDate = DateTime.Now;

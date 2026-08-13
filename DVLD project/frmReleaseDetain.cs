@@ -2,6 +2,8 @@
 using CurrentUserInformation;
 using DetainedLicensesBuisnessLayer;
 using DriversBuisnessLayer;
+using DTOs;
+using DVLD_project.Services;
 using LicensesBuisnessLayer;
 using PeopleBuisnessLayer;
 using System;
@@ -19,10 +21,11 @@ namespace DVLD_project
 {
     public partial class frmReleaseDetain : Form
     {
-        
+        private readonly ApplicationClientService _applicationClientService;
         public frmReleaseDetain(int DetainID = -1)
         {
             InitializeComponent();
+            _applicationClientService = new ApplicationClientService();
             this.AcceptButton = searchLicenseControl1.BtnSearch();
             lbAppFees.Text = "15";
             if (DetainID != -1)
@@ -104,7 +107,7 @@ namespace DVLD_project
             frm.ShowDialog();
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             if (searchLicenseControl1.IsNull())
             {
@@ -114,18 +117,20 @@ namespace DVLD_project
             clsDetainedLicenses Detain = clsDetainedLicenses.FindDetainByDetainID(int.Parse(lbDetainID.Text));
             clsLicenses License = clsLicenses.FindLicenseByLicenseID(Detain.LicenseID);
             clsDrivers Driver = clsDrivers.FindDriverByID(License.DriverID);
-            clsApplications App = new clsApplications();
             clsLicenses.ActivateLicense(License.LicenseID);
-            App.PersonID = Driver.PersonID;
-            App.AppDate = DateTime.Now;
-            App.AppTypeID = 5;
-            App.AppStatus = 3;
-            App.LastStatusDate = DateTime.Now;
-            App.PaidFees = 15;
-            App.UserID = CurrentUser.user.UserID;
-            App.AddApplication();
-            lbReleaseAppID.Text = App.AppID.ToString();
-            Detain.ReleaseAppID = App.AppID;    
+            var App = await _applicationClientService.AddApplication(new ApplicationDTO
+            {
+                ApplicantPersonId = Driver.PersonID,
+                ApplicationDate = DateTime.Now,
+                ApplicationTypeId = 5,
+                ApplicationStatus = 3,
+                LastStatusDate = DateTime.Now,
+                PaidFees = 15,
+                CreatedByUserId = CurrentUser.user.UserID          
+            });          
+            
+            lbReleaseAppID.Text = App.ApplicationId.ToString();
+            Detain.ReleaseAppID = App.ApplicationId;    
             Detain.ReleaseDate = DateTime.Now;
             Detain.ReleasedByUserID = CurrentUser.user.UserID;
             Detain.Release();

@@ -14,6 +14,7 @@ using LocalDrivingLicenseApplicationsBuisnessLayer;
 using CurrentUserInformation;
 using UsersBuisnessLayer;
 using DVLD_project.Services;
+using DTOs;
 
 namespace DVLD_project
 {
@@ -21,27 +22,17 @@ namespace DVLD_project
     {
         int LAppID = -1;
         private readonly LicenseClassClientService _licenseClassClientService;
+        private readonly ApplicationClientService _applicationClientService;
         public frmNewLocalDrivingLicenseApplication(int id = -1)
         {
             InitializeComponent();
             _licenseClassClientService = new LicenseClassClientService();
+            _applicationClientService = new ApplicationClientService();
             this.AcceptButton = personDetailsWithFilter1.BtnSearch();
             lbDate.Text = DateTime.Now.ToString();
             lbFees.Text = "15";
             lbUsername.Text = CurrentUser.user.UserName;
-            if (id != -1)
-            {
-                LAppID = id;    
-                clsLocalLicenseApplication LApp = clsLocalLicenseApplication.FindApplication(id);
-                clsApplications App = clsApplications.FindApplication(LApp.AppId);
-                lbDate.Text = App.AppDate.ToString();
-                lbFees.Text = App.PaidFees.ToString();
-                clsUsers user = clsUsers.FindUser(App.UserID);
-                lbUsername.Text = user.UserName;
-                lbAppID.Text = id.ToString();
-                cbLicenseClass.SelectedIndex = LApp.LicenseClassID - 1;
-                personDetailsWithFilter1.LoadPersonInfo(App.PersonID);
-            }           
+            LAppID = id;
         }
 
         private void btnNext_Click(object sender, EventArgs e)
@@ -79,23 +70,24 @@ namespace DVLD_project
             if (LAppID != -1)
             {
                 clsLocalLicenseApplication LApp = clsLocalLicenseApplication.FindApplication(LAppID);
-                clsApplications.UpdateApplication(LApp.AppId, personid);
+                await _applicationClientService.UpdateApplicationByPersonId(LApp.AppId, personid);
                 clsLocalLicenseApplication.UpdateApplication(LAppID, LicenseClassID);
                 MessageBox.Show("Application Updated Successfully", "Congratulations", MessageBoxButtons.OK);
             }
             else
             {
-                clsApplications App = new clsApplications();
-                App.PersonID = personid;
-                App.AppDate = Convert.ToDateTime(lbDate.Text);
-                App.AppStatus = 1;
-                App.AppTypeID = 1;
-                App.LastStatusDate = Convert.ToDateTime(lbDate.Text);
-                App.PaidFees = int.Parse(lbFees.Text);
-                App.UserID = CurrentUser.user.UserID; ;
-                App.AddApplication();
+                var App = await _applicationClientService.AddApplication(new ApplicationDTO
+                {
+                    ApplicantPersonId = personid,
+                    ApplicationDate = Convert.ToDateTime(lbDate.Text),
+                    ApplicationStatus = 1,
+                    ApplicationTypeId = 1,
+                    LastStatusDate = Convert.ToDateTime(lbDate.Text),
+                    PaidFees = int.Parse(lbFees.Text),
+                    CreatedByUserId = CurrentUser.user.UserID                
+                });
                 clsLocalLicenseApplication LocalApp = new clsLocalLicenseApplication();
-                LocalApp.AppId = App.AppID;
+                LocalApp.AppId = App.ApplicationId;
                 LocalApp.LicenseClassID = LicenseClassID;
                 LocalApp.AddApplication();
                 lbAppID.Text = LocalApp.LocalAppID.ToString();
@@ -106,6 +98,17 @@ namespace DVLD_project
 
         private async void frmNewLocalDrivingLicenseApplication_Load(object sender, EventArgs e)
         {
+            if(LAppID != -1) {
+                clsLocalLicenseApplication LApp = clsLocalLicenseApplication.FindApplication(LAppID);
+                var App = await _applicationClientService.FindApplication(LApp.AppId);
+                lbDate.Text = App.ApplicationDate.ToString();
+                lbFees.Text = App.PaidFees.ToString();
+                clsUsers user = clsUsers.FindUser(App.CreatedByUserId);
+                lbUsername.Text = user.UserName;
+                lbAppID.Text = LAppID.ToString();
+                cbLicenseClass.SelectedIndex = LApp.LicenseClassID - 1;
+                personDetailsWithFilter1.LoadPersonInfo(App.ApplicantPersonId);
+            }
             var LicenseClasses = await _licenseClassClientService.GetAllLicenseClasses();
             foreach (var LicenseClass in LicenseClasses)
             {

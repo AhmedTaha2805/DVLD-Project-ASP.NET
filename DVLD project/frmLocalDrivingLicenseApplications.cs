@@ -21,10 +21,12 @@ namespace DVLD_project
     {
         private readonly TestClientService _testClient;
         private readonly TestAppointmentClientService _testAppointmentClient;
+        private readonly ApplicationClientService _applicationClientService;
         public frmLocalDrivingLicenseApplications()
         {
             InitializeComponent();
             _testAppointmentClient = new TestAppointmentClientService();
+            _applicationClientService = new ApplicationClientService();
             _testClient = new TestClientService();
         }
 
@@ -174,7 +176,7 @@ namespace DVLD_project
             }
         }
 
-        private void cancelApplicationToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void cancelApplicationToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string status = LocalAppsdatagrid.SelectedRows[0].Cells["Status"].Value.ToString();
             if(status == "Cancelled"){
@@ -188,7 +190,7 @@ namespace DVLD_project
             }
             int id = int.Parse(LocalAppsdatagrid.SelectedRows[0].Cells["L.D.L AppID"].Value.ToString());
             clsLocalLicenseApplication app = clsLocalLicenseApplication.FindApplication(id);
-            clsApplications.CancelApplication(app.AppId);
+            await _applicationClientService.CancelApplication(app.AppId);
             MessageBox.Show($"Application with id = {id} is cancelled", "Congratulations", MessageBoxButtons.OK);
             RefreshDataGrid();  
         }
@@ -252,7 +254,7 @@ namespace DVLD_project
             clsLocalLicenseApplication application = clsLocalLicenseApplication.FindApplication(id);
             clsLocalLicenseApplication.DeleteApplication(id);
            
-            clsApplications.DeleteApplication(application.AppId);
+            await _applicationClientService.DeleteApplication(application.AppId);
 
             if(MessageBox.Show("Are You sure you want to delete this application?","Confirm",MessageBoxButtons.OKCancel,MessageBoxIcon.Warning) == DialogResult.OK)
             {

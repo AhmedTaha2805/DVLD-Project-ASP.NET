@@ -1,5 +1,6 @@
 ﻿using ApplicationBuisnessLayer;
 using CurrentUserInformation;
+using DTOs;
 using DVLD_project.Services;
 using LicenseClassesBuisnessLayer;
 using LocalDrivingLicenseApplicationsBuisnessLayer;
@@ -26,10 +27,14 @@ namespace DVLD_project
         int AppointID;
         int _AppID;
         private readonly LicenseClassClientService _licenseClassClientService;
+        private readonly TestAppointmentClientService _testAppointmentClientService;
+        private readonly ApplicationClientService _applicationClientService;
         public frmStreetTest(int id,int Appointid = -1, bool Retake = false, int RTAppID = -1)
         {
             InitializeComponent(); 
+            _applicationClientService = new ApplicationClientService();
             _licenseClassClientService = new LicenseClassClientService();
+            _testAppointmentClientService = new TestAppointmentClientService();
             AppointID = Appointid;
             _AppID = id;
             _Retake = Retake;
@@ -39,19 +44,19 @@ namespace DVLD_project
         {
             dateTimePicker1.MinDate = DateTime.Now;
             clsLocalLicenseApplication LDLApp = clsLocalLicenseApplication.FindApplication(_AppID);
-            clsApplications App = clsApplications.FindApplication(LDLApp.AppId);
+            var App = await _applicationClientService.FindApplication(LDLApp.AppId);
             lbAppID.Text = _AppID.ToString();
             lbClass.Text = await _licenseClassClientService.GetLicenseClassNameById(LDLApp.LicenseClassID);
-            clsPeople person = clsPeople.FindPerson(App.PersonID);
+            clsPeople person = clsPeople.FindPerson(App.ApplicantPersonId);
             Person_ID = person.Id;
             lbName.Text = person.FullName();
-            lbTrial.Text = clsTestAppointments.GetNumberOfTrials(LDLApp.LocalAppID, 3).ToString();
+            lbTrial.Text = (await _testAppointmentClientService.GetNumberOfTrials(LDLApp.LocalAppID, 3)).ToString();
             lbFees.Text = "30";
             if (_Retake)
             {
                 groupBox2.Enabled = true;
                 lbTitle.Text = "Schedule Retake Test";
-                lbRetakeAppID.Text = clsApplications.GetNextID().ToString();
+                lbRetakeAppID.Text = (await _applicationClientService.GetNextId()).ToString();
                 int total = Convert.ToInt32(lbFees.Text) + 5;
                 lbTotalFees.Text = total.ToString();
             }
@@ -62,32 +67,38 @@ namespace DVLD_project
         {
             this.Close();
         }
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             if (AppointID != -1)
             {
-                clsTestAppointments.UpdateApplicationDate(AppointID, dateTimePicker1.Value);
+                await _testAppointmentClientService.UpdateAppointmentDate(AppointID, dateTimePicker1.Value);
                 MessageBox.Show("Appointment Updated Successfully", "Congratulations", MessageBoxButtons.OK);
             }
             if (IsDone)
             {
-                clsTestAppointments TestApp = new clsTestAppointments();
-                TestApp.TestTypeID = 3;
-                TestApp.PaidFees = 30;
-                TestApp.LocalDrivingLicenseApplicationID = int.Parse(lbAppID.Text);
-                TestApp.AppointmentDate = dateTimePicker1.Value;
-                TestApp.CreatedByUserID = CurrentUser.user.UserID;
+                TestAppointmentDTO dto = new TestAppointmentDTO
+                {
+                    TestTypeId = 3,
+                    PaidFees = 30,
+                    LocalDrivingLicenseApplicationId = int.Parse(lbAppID.Text),
+                    AppointmentDate = dateTimePicker1.Value,
+                    CreatedByUserId = CurrentUser.user.UserID,
+                };
                 if (_Retake)
                 {
-                    clsApplications App = new clsApplications();
-                    App.PersonID = Person_ID; App.PaidFees = 5; App.AppStatus = 3;
-                    App.AppDate = DateTime.Now; App.AppTypeID = 7;
-                    App.LastStatusDate = DateTime.Now;
-                    App.UserID = CurrentUser.user.UserID;
-                    App.AddApplication();
-                    TestApp.RetakeTestApplicationID = App.AppID;
+                    var App = await _applicationClientService.AddApplication(new ApplicationDTO
+                    {
+                        ApplicantPersonId = Person_ID,
+                        ApplicationDate = DateTime.Now,
+                        ApplicationTypeId = 7,
+                        ApplicationStatus = 3,
+                        LastStatusDate = DateTime.Now,
+                        PaidFees = 5,
+                        CreatedByUserId = CurrentUser.user.UserID
+                    });
+                    dto.RetakeTestApplicationId = App.ApplicationId;
                 }
-                TestApp.AddTestAppointment();
+                await _testAppointmentClientService.AddTestAppointment(dto);
                 MessageBox.Show("Appointment Added Successfully", "Congratulations", MessageBoxButtons.OK);
             }
         }

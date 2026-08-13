@@ -21,10 +21,12 @@ namespace DVLD_project
     {
         int CLDLAppID;
         private readonly LicenseClassClientService _licenseClassClientService;
+        private readonly ApplicationClientService _applicationClientService;
         public frmIssueDrivingLicenseFirstTime(int LDLAppID)
         {
             InitializeComponent();
             _licenseClassClientService = new LicenseClassClientService();
+            _applicationClientService = new ApplicationClientService();
             CLDLAppID = LDLAppID;
             applicationInfoControl1.LoadAppInfo(LDLAppID);
         }
@@ -37,7 +39,7 @@ namespace DVLD_project
         private async void btnSave_Click(object sender, EventArgs e)
         {
             clsLocalLicenseApplication LApp = clsLocalLicenseApplication.FindApplication(CLDLAppID);
-            clsApplications App = clsApplications.FindApplication(LApp.AppId);
+            var App = await _applicationClientService.FindApplication(LApp.AppId);
             clsLicenses license = new clsLicenses();
             license.AppID = LApp.AppId;
             license.LicenseClassID = LApp.LicenseClassID;
@@ -50,15 +52,15 @@ namespace DVLD_project
             license.IssueReason = 1;
             license.CreatedByUserID = CurrentUser.user.UserID;
             clsDrivers driver = new clsDrivers();
-            driver.PersonID = App.PersonID;
+            driver.PersonID = App.ApplicantPersonId;
             driver.CreatedByUserID = CurrentUser.user.UserID;
             driver.CreatedDate = DateTime.Now;
             driver.AddDriver();
             license.DriverID = driver.DriverID;
             license.AddLicense();
             App.LastStatusDate = DateTime.Now;
-            App.AppStatus = 3;
-            App.Update();
+            App.ApplicationStatus = 3;
+            await _applicationClientService.UpdateApplication(App);
             
             MessageBox.Show("License Added Successfully","Congratulations",MessageBoxButtons.OK);
         }

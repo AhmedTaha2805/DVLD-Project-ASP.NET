@@ -20,10 +20,11 @@ namespace DVLD_project
     public partial class LicenseInfoControl : UserControl
     {
         private readonly LicenseClassClientService _licenseClassClientService;
-
+        private readonly ApplicationClientService _applicationClientService;
         public LicenseInfoControl()
         {
             InitializeComponent();
+            _applicationClientService = new ApplicationClientService();
             _licenseClassClientService = new LicenseClassClientService();
         }
 
@@ -68,8 +69,8 @@ namespace DVLD_project
                 return false;
             }
             lbClass.Text = await _licenseClassClientService.GetLicenseClassNameById(license.LicenseClassID);
-            clsApplications App = clsApplications.FindApplication(license.AppID);
-            clsPeople person = clsPeople.FindPerson(App.PersonID);
+            var App = await _applicationClientService.FindApplication(license.AppID);
+            clsPeople person = clsPeople.FindPerson(App.ApplicantPersonId);
             lbName.Text = person.FullName();
             lbNationalNo.Text = person.NationalNum;
             if (person.Gender == 0)

@@ -1,6 +1,7 @@
 ﻿using ApplicationBuisnessLayer;
 using CurrentUserInformation;
 using DriversBuisnessLayer;
+using DTOs;
 using DVLD_project.Services;
 using LicenseClassesBuisnessLayer;
 using LicensesBuisnessLayer;
@@ -21,10 +22,12 @@ namespace DVLD_project
     {
         int _LicenseID;
         private readonly LicenseClassClientService _licenseClassClientService;
+        private readonly ApplicationClientService _applicationClientService;
         public frmReplacment()
         {
             InitializeComponent();
             _licenseClassClientService = new LicenseClassClientService();
+            _applicationClientService = new ApplicationClientService();
             this.AcceptButton = searchLicenseControl1.BtnSearch();
         }
 
@@ -66,28 +69,23 @@ namespace DVLD_project
             {
                 return;
             }
-            clsApplications App = new clsApplications();
-            App.AppDate = Convert.ToDateTime(lbAppDate.Text);
-            if (rbDamaged.Checked)
-            {
-                App.AppTypeID = 3;
-            }
-            else
-            {
-                App.AppTypeID = 4;
-            }
-            App.AppStatus = 3;
-            App.LastStatusDate = DateTime.Now;
-            App.PaidFees = Convert.ToInt32(lbAppfees.Text);
-            App.UserID = CurrentUser.user.UserID;
+            
             clsLicenses OldLicense = clsLicenses.FindLicenseByLicenseID(int.Parse(lbOldLicenseID.Text));
             clsLicenses.DeActivateLicense(_LicenseID);
             clsDrivers Driver = clsDrivers.FindDriverByID(OldLicense.DriverID);
-            App.PersonID = Driver.PersonID;
-            App.AddApplication();
-            lbReplacmentAppID.Text = App.AppID.ToString();
+            var App = await _applicationClientService.AddApplication(new ApplicationDTO
+            {
+                ApplicantPersonId = Driver.PersonID,
+                ApplicationDate = Convert.ToDateTime(lbAppDate.Text),
+                ApplicationTypeId = rbDamaged.Checked ? 3 : 4,
+                ApplicationStatus = 3,
+                LastStatusDate = DateTime.Now,
+                PaidFees = Convert.ToInt32(lbAppfees.Text),
+                CreatedByUserId = CurrentUser.user.UserID
+            });
+            lbReplacmentAppID.Text = App.ApplicationId.ToString();
             clsLicenses NewLicense = new clsLicenses();
-            NewLicense.AppID = App.AppID;
+            NewLicense.AppID = App.ApplicationId;
             NewLicense.DriverID = Driver.DriverID;
             NewLicense.LicenseClassID = OldLicense.LicenseClassID;
             NewLicense.IssueDate = DateTime.Now;

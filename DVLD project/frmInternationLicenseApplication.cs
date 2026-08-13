@@ -1,6 +1,8 @@
 ﻿using ApplicationBuisnessLayer;
 using CurrentUserInformation;
 using DriversBuisnessLayer;
+using DTOs;
+using DVLD_project.Services;
 using InternationalLicensesBuisnessLayer;
 using LicensesBuisnessLayer;
 using PeopleBuisnessLayer;
@@ -20,9 +22,11 @@ namespace DVLD_project
     public partial class frmInternationLicenseApplication : Form
     {
         int _LicenseID;
+        private readonly ApplicationClientService _applicationClientService;
         public frmInternationLicenseApplication()
         {
             InitializeComponent();
+            _applicationClientService = new ApplicationClientService();
             this.AcceptButton = searchLicenseControl1.BtnSearch();
         }
 
@@ -40,26 +44,27 @@ namespace DVLD_project
             this.Close();
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             if (searchLicenseControl1.IsNull())
             {
                 return;
             }
-            clsApplications App = new clsApplications();
-            App.AppDate = DateTime.Now;
-            App.AppTypeID = 6;
-            App.AppStatus = 3;
-            App.LastStatusDate = DateTime.Now;
-            App.PaidFees = 51;
-            App.UserID = CurrentUser.user.UserID;
             clsLicenses license = clsLicenses.FindLicenseByLicenseID(int.Parse(lbLocalLicenseID.Text));
             clsDrivers Driver = clsDrivers.FindDriverByID(license.DriverID);
-            App.PersonID = Driver.PersonID;
-            App.AddApplication();
-            lbAppID.Text = App.AppID.ToString();
+            var App = await _applicationClientService.AddApplication(new ApplicationDTO
+            {
+                ApplicationDate = DateTime.Now,
+                ApplicationTypeId = 6,
+                ApplicationStatus = 3,
+                LastStatusDate = DateTime.Now,
+                PaidFees = 51,
+                CreatedByUserId = CurrentUser.user.UserID,
+                ApplicantPersonId = Driver.PersonID
+            });
+            lbAppID.Text = App.ApplicationId.ToString();
             clsIntLicenses intLicense = new clsIntLicenses();
-            intLicense.AppID = App.AppID;
+            intLicense.AppID = App.ApplicationId;
             intLicense.DriverID = Driver.DriverID;
             intLicense.LocalLicenseID = license.LicenseID;
             intLicense.IssueDate = DateTime.Now;

@@ -19,13 +19,15 @@ namespace DVLD_project
 {
     public partial class ApplicationInfoControl : UserControl
     {
-        private readonly ApplicationTypeClientService _applicationClientService;
+        private readonly ApplicationTypeClientService _applicationtypeClientService;
         private readonly LicenseClassClientService _licenseClassClientService;
+        private readonly ApplicationClientService _applicationClientService;
         public ApplicationInfoControl()
         {
             InitializeComponent();  
-            _applicationClientService = new ApplicationTypeClientService();
+            _applicationtypeClientService = new ApplicationTypeClientService();
             _licenseClassClientService = new LicenseClassClientService();
+            _applicationClientService = new ApplicationClientService();
         }
 
         public async void LoadAppInfo(int LDLAppID)
@@ -35,16 +37,16 @@ namespace DVLD_project
             lbLDLAppID.Text = LDLAppID.ToString();
             lbLicenseClass.Text = await _licenseClassClientService.GetLicenseClassNameById(licenseApplication.LicenseClassID);
             lbPassedTests.Text = $"{clsLocalLicenseApplication.FindNumberOfPassedTests(LDLAppID).ToString()}/3";
-            clsApplications App = clsApplications.FindApplication(licenseApplication.AppId);
-            lbAppID.Text = App.AppID.ToString();
-            lbStatus.Text = clsApplications.GetStatus(App.AppStatus);
+            var App = await _applicationClientService.FindApplication(licenseApplication.AppId);
+            lbAppID.Text = App.ApplicationId.ToString();
+            lbStatus.Text = _applicationClientService.GetStatus(App.ApplicationStatus);
             lbFees.Text = App.PaidFees.ToString();
-            lbType.Text = await _applicationClientService.GetApplicationTypeTitleById(App.AppTypeID);
-            clsPeople person = clsPeople.FindPerson(App.PersonID);
+            lbType.Text = await _applicationtypeClientService.GetApplicationTypeTitleById(App.AppTypeID);
+            clsPeople person = clsPeople.FindPerson(App.ApplicantPersonId);
             lbApplicantName.Text = $"{person.FirstName} {person.SecondName} {person.ThirdName} {person.LastName} ";
-            lbDate.Text = App.AppDate.ToString();
+            lbDate.Text = App.ApplicationDate.ToString();
             lbStatusDate.Text = App.LastStatusDate.ToString();
-            clsUsers User = clsUsers.FindUser(App.UserID);
+            clsUsers User = clsUsers.FindUser(App.CreatedByUserId);
             lbUserName.Text = User.UserName;
             if(lbStatus.Text == "Completed"){
                 lnkShowLicense.Enabled = true;
@@ -52,10 +54,10 @@ namespace DVLD_project
             lbLoading.Visible = false;
         }
 
-        private int GetPersonID()
+        private async Task<int> GetPersonID()
         {
-            clsApplications App = clsApplications.FindApplication(int.Parse(lbAppID.Text));
-            return App.PersonID;
+            var App = await _applicationClientService.FindApplication(int.Parse(lbAppID.Text));
+            return App.ApplicantPersonId;
         }
 
         public int AppID()
@@ -64,9 +66,9 @@ namespace DVLD_project
         }
 
 
-        private void lnkViewPersonInfo_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private async void lnkViewPersonInfo_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            frmPersonDetails frm = new frmPersonDetails(GetPersonID());
+            frmPersonDetails frm = new frmPersonDetails(await GetPersonID());
             frm.ShowDialog();
         }
 
