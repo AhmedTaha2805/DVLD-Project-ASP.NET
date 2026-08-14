@@ -4,7 +4,12 @@ using System.Text;
 
 namespace DTOs
 {
-    internal class LocalDrivingLicenseApplicationDTO
+    public class LocalDrivingLicenseApplicationDTO
     {
+        public int LocalDrivingLicenseApplicationId { get; set; }
+
+        public int ApplicationId { get; set; }
+
+        public int LicenseClassId { get; set; }
     }
 }

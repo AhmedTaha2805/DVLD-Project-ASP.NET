@@ -22,11 +22,13 @@ namespace DVLD_project
         int CLDLAppID;
         private readonly LicenseClassClientService _licenseClassClientService;
         private readonly ApplicationClientService _applicationClientService;
+        private readonly LocalDrivingLicenseApplicationClientService _localDrivingLicenseApplicationClientService;
         public frmIssueDrivingLicenseFirstTime(int LDLAppID)
         {
             InitializeComponent();
             _licenseClassClientService = new LicenseClassClientService();
             _applicationClientService = new ApplicationClientService();
+            _localDrivingLicenseApplicationClientService = new LocalDrivingLicenseApplicationClientService();
             CLDLAppID = LDLAppID;
             applicationInfoControl1.LoadAppInfo(LDLAppID);
         }
@@ -38,11 +40,11 @@ namespace DVLD_project
 
         private async void btnSave_Click(object sender, EventArgs e)
         {
-            clsLocalLicenseApplication LApp = clsLocalLicenseApplication.FindApplication(CLDLAppID);
-            var App = await _applicationClientService.FindApplication(LApp.AppId);
+            var LApp = await _localDrivingLicenseApplicationClientService.FindApplicationAsync(CLDLAppID);
+            var App = await _applicationClientService.FindApplication(LApp.ApplicationId);
             clsLicenses license = new clsLicenses();
-            license.AppID = LApp.AppId;
-            license.LicenseClassID = LApp.LicenseClassID;
+            license.AppID = LApp.ApplicationId;
+            license.LicenseClassID = LApp.LicenseClassId;
             license.IssueDate = DateTime.Now;
             Byte length = await _licenseClassClientService.GetLicenseClassValidityLengthById(license.LicenseClassID);
             license.ExpirationDate = DateTime.Now.AddYears(length);

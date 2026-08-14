@@ -22,17 +22,19 @@ namespace DVLD_project
         private readonly TestClientService _testClient;
         private readonly TestAppointmentClientService _testAppointmentClient;
         private readonly ApplicationClientService _applicationClientService;
+        private readonly LocalDrivingLicenseApplicationClientService _localDrivingLicenseApplicationClientService;
         public frmLocalDrivingLicenseApplications()
         {
             InitializeComponent();
             _testAppointmentClient = new TestAppointmentClientService();
             _applicationClientService = new ApplicationClientService();
+            _localDrivingLicenseApplicationClientService = new LocalDrivingLicenseApplicationClientService();
             _testClient = new TestClientService();
         }
 
-        private void RefreshDataGrid()
+        private async Task RefreshDataGrid()
         {
-            LocalAppsdatagrid.DataSource = clsLocalLicenseApplication.GetAllLocalApps();
+            LocalAppsdatagrid.DataSource = await _localDrivingLicenseApplicationClientService.GetAllLocalAppsAsync();
         }
 
         private void txtFilters_KeyPress(object sender, KeyPressEventArgs e)
@@ -53,9 +55,9 @@ namespace DVLD_project
             }
         }
 
-        private void txtFilters_TextChanged(object sender, EventArgs e)
+        private async void txtFilters_TextChanged(object sender, EventArgs e)
         {
-            DataView dv = clsLocalLicenseApplication.GetAllLocalApps().DefaultView;
+            DataView dv = (await _localDrivingLicenseApplicationClientService.GetAllLocalAppsAsDataTableAsync()).DefaultView;
 
             dv.RowFilter = $"Convert([{cbFilters.Text}],'System.String') like '{txtFilters.Text}%'";
 
@@ -67,9 +69,9 @@ namespace DVLD_project
             this.Close();
         }
 
-        private void frmLocalDrivingLicenseApplications_Load(object sender, EventArgs e)
+        private async void frmLocalDrivingLicenseApplications_Load(object sender, EventArgs e)
         {
-            RefreshDataGrid();
+            await RefreshDataGrid();
         }
 
         private void cbFilters_SelectedIndexChanged(object sender, EventArgs e)
@@ -77,11 +79,11 @@ namespace DVLD_project
             txtFilters.Visible = true;
         }
 
-        private void btnAddApp_Click(object sender, EventArgs e)
+        private async void btnAddApp_Click(object sender, EventArgs e)
         {
             frmNewLocalDrivingLicenseApplication frm = new frmNewLocalDrivingLicenseApplication();
             frm.ShowDialog();
-            RefreshDataGrid();
+            await RefreshDataGrid();
         }
 
         private void LocalAppsdatagrid_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
@@ -189,34 +191,34 @@ namespace DVLD_project
                 return;
             }
             int id = int.Parse(LocalAppsdatagrid.SelectedRows[0].Cells["L.D.L AppID"].Value.ToString());
-            clsLocalLicenseApplication app = clsLocalLicenseApplication.FindApplication(id);
-            await _applicationClientService.CancelApplication(app.AppId);
+            var app = await _localDrivingLicenseApplicationClientService.FindApplicationAsync(id);
+            await _applicationClientService.CancelApplication(app.ApplicationId);
             MessageBox.Show($"Application with id = {id} is cancelled", "Congratulations", MessageBoxButtons.OK);
-            RefreshDataGrid();  
+            await RefreshDataGrid();  
         }
 
-        private void scheduleVisionTestToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void scheduleVisionTestToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int id = int.Parse(LocalAppsdatagrid.SelectedRows[0].Cells["L.D.L AppID"].Value.ToString());
             frmScheduleVisionTest frm = new frmScheduleVisionTest(id);
             frm.ShowDialog();
-            RefreshDataGrid();
+            await RefreshDataGrid();
         }
 
-        private void scheduleWrittenTestToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void scheduleWrittenTestToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int id = int.Parse(LocalAppsdatagrid.SelectedRows[0].Cells["L.D.L AppID"].Value.ToString());
             frmScheduleWrittenTest frm = new frmScheduleWrittenTest(id);
             frm.ShowDialog();
-            RefreshDataGrid();
+            await RefreshDataGrid();
         }
 
-        private void scheduleStreetTestToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void scheduleStreetTestToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int id = int.Parse(LocalAppsdatagrid.SelectedRows[0].Cells["L.D.L AppID"].Value.ToString());
             FrmScheduleStreetTest frm = new FrmScheduleStreetTest(id);
             frm.ShowDialog();
-            RefreshDataGrid();
+            await RefreshDataGrid();
         }
 
         private void showApplicationToolStripMenuItem_Click(object sender, EventArgs e)
@@ -224,16 +226,14 @@ namespace DVLD_project
             int id = int.Parse(LocalAppsdatagrid.SelectedRows[0].Cells["L.D.L AppID"].Value.ToString());
             frmShowApplicationDetails frm = new frmShowApplicationDetails(id);
             frm.ShowDialog();
-
-
         }
 
-        private void editApplicationToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void editApplicationToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int id = int.Parse(LocalAppsdatagrid.SelectedRows[0].Cells["L.D.L AppID"].Value.ToString());
             frmNewLocalDrivingLicenseApplication frm = new frmNewLocalDrivingLicenseApplication(id);
             frm.ShowDialog();
-            RefreshDataGrid();
+            await RefreshDataGrid();
         }
 
         private async void deleteApplicationToolStripMenuItem_Click(object sender, EventArgs e)
@@ -251,32 +251,32 @@ namespace DVLD_project
                 await _testClient.DeleteTestWithAppointmentId(n);
             }
             await _testAppointmentClient.DeleteAppointmentsWithLDLAppId(id);
-            clsLocalLicenseApplication application = clsLocalLicenseApplication.FindApplication(id);
-            clsLocalLicenseApplication.DeleteApplication(id);
+            var application = await _localDrivingLicenseApplicationClientService.FindApplicationAsync(id);
+            await _localDrivingLicenseApplicationClientService.DeleteApplicationAsync(id);
            
-            await _applicationClientService.DeleteApplication(application.AppId);
+            await _applicationClientService.DeleteApplication(application.ApplicationId);
 
             if(MessageBox.Show("Are You sure you want to delete this application?","Confirm",MessageBoxButtons.OKCancel,MessageBoxIcon.Warning) == DialogResult.OK)
             {
                 MessageBox.Show("Application deleted successfully", "Congratulations", MessageBoxButtons.OK);
             }
-            RefreshDataGrid();
+            await RefreshDataGrid();
 
         }
 
-        private void issueDrivingLicenseFirstTimeToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void issueDrivingLicenseFirstTimeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int id = int.Parse(LocalAppsdatagrid.SelectedRows[0].Cells["L.D.L AppID"].Value.ToString());
             frmIssueDrivingLicenseFirstTime frm = new frmIssueDrivingLicenseFirstTime(id);
             frm.ShowDialog();
-            RefreshDataGrid();
+            await RefreshDataGrid();
         }
 
-        private void showLicenseToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void showLicenseToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int id = int.Parse(LocalAppsdatagrid.SelectedRows[0].Cells["L.D.L AppID"].Value.ToString());
-            clsLocalLicenseApplication LApp = clsLocalLicenseApplication.FindApplication(id);
-            clsLicenses License = clsLicenses.FindLicenseByApplicationID(LApp.LocalAppID);
+            var LApp = await _localDrivingLicenseApplicationClientService.FindApplicationAsync(id);
+            clsLicenses License = clsLicenses.FindLicenseByApplicationID(LApp.LocalDrivingLicenseApplicationId);
             frmLicenseInfo frm = new frmLicenseInfo(License.LicenseID);  
             frm.ShowDialog();
         }

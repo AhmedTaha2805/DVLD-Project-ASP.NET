@@ -22,26 +22,28 @@ namespace DVLD_project
         private readonly ApplicationTypeClientService _applicationtypeClientService;
         private readonly LicenseClassClientService _licenseClassClientService;
         private readonly ApplicationClientService _applicationClientService;
+        private readonly LocalDrivingLicenseApplicationClientService _localDrivingLicenseApplicationClientService;
         public ApplicationInfoControl()
         {
             InitializeComponent();  
             _applicationtypeClientService = new ApplicationTypeClientService();
             _licenseClassClientService = new LicenseClassClientService();
             _applicationClientService = new ApplicationClientService();
+            _localDrivingLicenseApplicationClientService = new LocalDrivingLicenseApplicationClientService();
         }
 
         public async void LoadAppInfo(int LDLAppID)
         {
             lbLoading.Visible = true;
-            clsLocalLicenseApplication licenseApplication = clsLocalLicenseApplication.FindApplication(LDLAppID);
+            var licenseApplication = await _localDrivingLicenseApplicationClientService.FindApplicationAsync(LDLAppID);
             lbLDLAppID.Text = LDLAppID.ToString();
-            lbLicenseClass.Text = await _licenseClassClientService.GetLicenseClassNameById(licenseApplication.LicenseClassID);
-            lbPassedTests.Text = $"{clsLocalLicenseApplication.FindNumberOfPassedTests(LDLAppID).ToString()}/3";
-            var App = await _applicationClientService.FindApplication(licenseApplication.AppId);
+            lbLicenseClass.Text = await _licenseClassClientService.GetLicenseClassNameById(licenseApplication.LicenseClassId);
+            lbPassedTests.Text = $"{(await _localDrivingLicenseApplicationClientService.FindNumberOfPassedTestsAsync(LDLAppID)).ToString()}/3";
+            var App = await _applicationClientService.FindApplication(licenseApplication.ApplicationId);
             lbAppID.Text = App.ApplicationId.ToString();
             lbStatus.Text = _applicationClientService.GetStatus(App.ApplicationStatus);
             lbFees.Text = App.PaidFees.ToString();
-            lbType.Text = await _applicationtypeClientService.GetApplicationTypeTitleById(App.AppTypeID);
+            lbType.Text = await _applicationtypeClientService.GetApplicationTypeTitleById(App.ApplicationTypeId);
             clsPeople person = clsPeople.FindPerson(App.ApplicantPersonId);
             lbApplicantName.Text = $"{person.FirstName} {person.SecondName} {person.ThirdName} {person.LastName} ";
             lbDate.Text = App.ApplicationDate.ToString();

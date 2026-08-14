@@ -29,12 +29,14 @@ namespace DVLD_project
         private readonly LicenseClassClientService _licenseClassClientService;
         private readonly TestAppointmentClientService _testAppointmentClientService;
         private readonly ApplicationClientService _applicationClientService;
+        private readonly LocalDrivingLicenseApplicationClientService _localDrivingLicenseApplicationClientService;
         public frmStreetTest(int id,int Appointid = -1, bool Retake = false, int RTAppID = -1)
         {
             InitializeComponent(); 
             _applicationClientService = new ApplicationClientService();
             _licenseClassClientService = new LicenseClassClientService();
             _testAppointmentClientService = new TestAppointmentClientService();
+            _localDrivingLicenseApplicationClientService = new LocalDrivingLicenseApplicationClientService();
             AppointID = Appointid;
             _AppID = id;
             _Retake = Retake;
@@ -43,14 +45,14 @@ namespace DVLD_project
         private async void frmStreetTest_Load(object sender, EventArgs e)
         {
             dateTimePicker1.MinDate = DateTime.Now;
-            clsLocalLicenseApplication LDLApp = clsLocalLicenseApplication.FindApplication(_AppID);
-            var App = await _applicationClientService.FindApplication(LDLApp.AppId);
+            var LDLApp = await _localDrivingLicenseApplicationClientService.FindApplicationAsync(_AppID);
+            var App = await _applicationClientService.FindApplication(LDLApp.ApplicationId);
             lbAppID.Text = _AppID.ToString();
-            lbClass.Text = await _licenseClassClientService.GetLicenseClassNameById(LDLApp.LicenseClassID);
+            lbClass.Text = await _licenseClassClientService.GetLicenseClassNameById(LDLApp.LicenseClassId);
             clsPeople person = clsPeople.FindPerson(App.ApplicantPersonId);
             Person_ID = person.Id;
             lbName.Text = person.FullName();
-            lbTrial.Text = (await _testAppointmentClientService.GetNumberOfTrials(LDLApp.LocalAppID, 3)).ToString();
+            lbTrial.Text = (await _testAppointmentClientService.GetNumberOfTrials(LDLApp.LocalDrivingLicenseApplicationId, 3)).ToString();
             lbFees.Text = "30";
             if (_Retake)
             {
