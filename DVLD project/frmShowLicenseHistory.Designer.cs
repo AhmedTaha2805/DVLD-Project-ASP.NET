@@ -227,6 +227,7 @@
             this.Controls.Add(this.personDetailsWithFilter1);
             this.Name = "frmShowLicenseHistory";
             this.Text = "License History";
+            this.Load += new System.EventHandler(this.frmShowLicenseHistory_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.LicensesTab.ResumeLayout(false);

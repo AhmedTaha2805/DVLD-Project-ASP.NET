@@ -1,5 +1,6 @@
 ﻿using DetainedLicensesBuisnessLayer;
 using DriversBuisnessLayer;
+using DVLD_project.Services;
 using PeopleBuisnessLayer;
 using System;
 using System.Collections.Generic;
@@ -16,18 +17,20 @@ namespace DVLD_project
 {
     public partial class frmManageDetainedLicenses : Form
     {
+        private readonly DetainedLicenseClientService _detainedLicenseClientService;
         public frmManageDetainedLicenses()
         {
             InitializeComponent();
+            _detainedLicenseClientService = new DetainedLicenseClientService();
         }
-        private void RefreshDataGrid()
+        private async Task RefreshDataGrid()
         {
-            Detainsdatagrid.DataSource = clsDetainedLicenses.ListDetainedLicenses();
+            Detainsdatagrid.DataSource = await _detainedLicenseClientService.GetAllAsync();
         }
 
-        private void frmManageDetainedLicenses_Load(object sender, EventArgs e)
+        private async void frmManageDetainedLicenses_Load(object sender, EventArgs e)
         {
-            RefreshDataGrid();
+            await RefreshDataGrid();
             lbRecord.Text = (Detainsdatagrid.RowCount - 1).ToString();
         }
 
@@ -36,9 +39,9 @@ namespace DVLD_project
             this.Close();
         }
 
-        private void txtFilters_TextChanged(object sender, EventArgs e)
+        private async void txtFilters_TextChanged(object sender, EventArgs e)
         {
-            DataView dv = clsDetainedLicenses.ListDetainedLicenses().DefaultView;
+            DataView dv = (await _detainedLicenseClientService.GetAllAsDataTableAsync()).DefaultView;
 
             dv.RowFilter = $"Convert({cbFilters.Text},'System.String') like '{txtFilters.Text}%'";
 
@@ -80,15 +83,15 @@ namespace DVLD_project
             
         }
 
-        private void cbActive_SelectedIndexChanged(object sender, EventArgs e)
+        private async void cbActive_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (cbActive.Text == "All")
             {
-                RefreshDataGrid();
+                await RefreshDataGrid();
             }
             else if (cbActive.Text == "Yes")
             {
-                DataView dv = clsDetainedLicenses.ListDetainedLicenses().DefaultView;
+                DataView dv = (await _detainedLicenseClientService.GetAllAsDataTableAsync()).DefaultView;
 
                 dv.RowFilter = $"[Is Released] = 1";
 
@@ -96,7 +99,7 @@ namespace DVLD_project
             }
             else if (cbActive.Text == "No")
             {
-                DataView dv = clsDetainedLicenses.ListDetainedLicenses().DefaultView;
+                DataView dv = (await _detainedLicenseClientService.GetAllAsDataTableAsync()).DefaultView;
 
                 dv.RowFilter = $"[Is Released] = 0";
 
@@ -145,26 +148,26 @@ namespace DVLD_project
             }
         }
 
-        private void releaseDetainedLicenseToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void releaseDetainedLicenseToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int DetainID = int.Parse(Detainsdatagrid.SelectedRows[0].Cells["D.ID"].Value.ToString());
             frmReleaseDetain frm = new frmReleaseDetain(DetainID);
             frm.ShowDialog();
-            RefreshDataGrid();
+            await RefreshDataGrid();
         }
 
-        private void btnRelease_Click(object sender, EventArgs e)
+        private async void btnRelease_Click(object sender, EventArgs e)
         {
             frmReleaseDetain frm = new frmReleaseDetain();
             frm.ShowDialog();
-            RefreshDataGrid();
+            await RefreshDataGrid();
         }
 
-        private void btnDetain_Click(object sender, EventArgs e)
+        private async void btnDetain_Click(object sender, EventArgs e)
         {
             frmDetainLicense frm = new frmDetainLicense();
             frm.ShowDialog();
-            RefreshDataGrid();
+            await RefreshDataGrid();
         }
     }
 }

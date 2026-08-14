@@ -2,6 +2,8 @@
 using CurrentUserInformation;
 using DetainedLicensesBuisnessLayer;
 using DriversBuisnessLayer;
+using DTOs;
+using DVLD_project.Services;
 using LicenseClassesBuisnessLayer;
 using LicensesBuisnessLayer;
 using PeopleBuisnessLayer;
@@ -20,9 +22,11 @@ namespace DVLD_project
     public partial class frmDetainLicense : Form
     {
         int _LicenseID;
+        private readonly DetainedLicenseClientService _detainedLicenseClientService;
         public frmDetainLicense()
         {
             InitializeComponent();
+            _detainedLicenseClientService = new DetainedLicenseClientService();
             this.AcceptButton = searchLicenseControl1.BtnSearch();
         }
 
@@ -116,22 +120,22 @@ namespace DVLD_project
             frm.ShowDialog();
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {           
             if (searchLicenseControl1.IsNull())
             {
                 return;
             }
-            clsDetainedLicenses DetainedLicense = new clsDetainedLicenses();
-            DetainedLicense.LicenseID = _LicenseID;
-            DetainedLicense.DetainDate = DateTime.Now;
-            DetainedLicense.FineFees = 150;
-            DetainedLicense.CreatedByUserID = CurrentUser.user.UserID;
-            DetainedLicense.Detain();
-
+            var DetainedLicense = await _detainedLicenseClientService.DetainAsync(new DetainedLicenseDTO
+            {
+                LicenseId = _LicenseID,
+                DetainDate = DateTime.Now,
+                FineFees = 150,
+                CreatedByUserId = CurrentUser.user.UserID,
+            });
             clsLicenses.DeActivateLicense(_LicenseID);
         
-            lbDetainID.Text = DetainedLicense.DetainID.ToString();
+            lbDetainID.Text = DetainedLicense.DetainId.ToString();
             searchLicenseControl1.DisableFilter();
             btnSave.Enabled = false;
             MessageBox.Show($"License Detained Successfully");

@@ -23,10 +23,12 @@ namespace DVLD_project
     {
         int _LicenseID;
         private readonly ApplicationClientService _applicationClientService;
+        private readonly InternationalLicenseClientService _internationalLicenseClientService;
         public frmInternationLicenseApplication()
         {
             InitializeComponent();
             _applicationClientService = new ApplicationClientService();
+            _internationalLicenseClientService = new InternationalLicenseClientService();
             this.AcceptButton = searchLicenseControl1.BtnSearch();
         }
 
@@ -63,29 +65,30 @@ namespace DVLD_project
                 ApplicantPersonId = Driver.PersonID
             });
             lbAppID.Text = App.ApplicationId.ToString();
-            clsIntLicenses intLicense = new clsIntLicenses();
-            intLicense.AppID = App.ApplicationId;
-            intLicense.DriverID = Driver.DriverID;
-            intLicense.LocalLicenseID = license.LicenseID;
-            intLicense.IssueDate = DateTime.Now;
-            intLicense.ExpirationDate = DateTime.Now.AddYears(1);
-            intLicense.IsActive = true;
-            intLicense.CreatedByUserID = CurrentUser.user.UserID;
-            intLicense.AddLicense();
-            lbIntLicenseID.Text = intLicense.LicenseID.ToString();
+            var IntLicense = await _internationalLicenseClientService.AddLicenseAsync(new InternationalLicenseDTO
+            {
+                ApplicationId = App.ApplicationId,
+                DriverId = Driver.DriverID,
+                IssuedUsingLocalLicenseId = license.LicenseID,
+                IssueDate = DateTime.Now,
+                ExpirationDate = DateTime.Now.AddYears(1),
+                IsActive = true,
+                CreatedByUserId = CurrentUser.user.UserID
+            });
+            lbIntLicenseID.Text = IntLicense.InternationalLicenseId.ToString();
             searchLicenseControl1.DisableFilter();
             btnSave.Enabled = false;
-            MessageBox.Show($"License Added Successfully with id = {intLicense.LicenseID}");
+            MessageBox.Show($"License Added Successfully with id = {IntLicense.InternationalLicenseId}");
             lnkShowLicense.Enabled = true;
             lnkShowLicenseHistory.Enabled = true;
 
         }
 
-        private void searchLicenseControl1_OnSearchClick_1(int LicenseID)
+        private async void searchLicenseControl1_OnSearchClick_1(int LicenseID)
         {
             lbLocalLicenseID.Text = LicenseID.ToString();
             _LicenseID = LicenseID;
-            if (clsIntLicenses.HasInternationalLicense(LicenseID))
+            if (await _internationalLicenseClientService.HasInternationalLicenseAsync(LicenseID))
             {
                 btnSave.Enabled = false;
                 lnkShowLicenseHistory.Enabled = false;

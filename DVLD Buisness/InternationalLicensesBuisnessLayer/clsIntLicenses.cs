@@ -18,7 +18,6 @@ namespace InternationalLicensesBuisnessLayer
         public DateTime ExpirationDate { get; set; }
         public bool IsActive { get; set; }
         public int CreatedByUserID { get; set; }
-
         public clsIntLicenses()
         {
             this.LicenseID = -1;

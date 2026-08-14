@@ -22,26 +22,17 @@ namespace DVLD_project
     public partial class frmReleaseDetain : Form
     {
         private readonly ApplicationClientService _applicationClientService;
+        private readonly DetainedLicenseClientService _detainedLicenseClientService;
+        int _detainid;
         public frmReleaseDetain(int DetainID = -1)
         {
             InitializeComponent();
             _applicationClientService = new ApplicationClientService();
+            _detainedLicenseClientService = new DetainedLicenseClientService();
             this.AcceptButton = searchLicenseControl1.BtnSearch();
             lbAppFees.Text = "15";
-            if (DetainID != -1)
-            {
-                clsDetainedLicenses Detain = clsDetainedLicenses.FindDetainByDetainID(DetainID);
-                searchLicenseControl1.LoadLicenseInfo(Detain.LicenseID);
-                lbLicenseID.Text = Detain.LicenseID.ToString();
-                lbDetainID.Text = DetainID.ToString();
-                lbDetainDate.Text = Detain.DetainDate.ToString();
-                lbFinefees.Text = Detain.FineFees.ToString();            
-                lbTotalFees.Text = (Detain.FineFees + int.Parse(lbAppFees.Text)).ToString();
-                clsUsers user = clsUsers.FindUser(Detain.CreatedByUserID);
-                lbUserName.Text = user.UserName;
-                searchLicenseControl1.DisableFilter();
-
-            }
+            _detainid = DetainID;
+            
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -49,7 +40,7 @@ namespace DVLD_project
             this.Close();
         }
 
-        private void searchLicenseControl1_OnSearchClick(int LicenseID)
+        private async void searchLicenseControl1_OnSearchClick(int LicenseID)
         {
             lbLicenseID.Text = LicenseID.ToString();         
             clsLicenses License = clsLicenses.FindLicenseByLicenseID(LicenseID);
@@ -83,12 +74,12 @@ namespace DVLD_project
                 lnkShowLicenseHistory.Enabled = true;
                 lnkShowLicense.Enabled = true;
             }
-            clsDetainedLicenses Detain = clsDetainedLicenses.FindDetainByLicenseID(LicenseID);
-            lbDetainID.Text = Detain.DetainID.ToString();
+            var Detain = await _detainedLicenseClientService.FindByLicenseIdAsync(LicenseID);
+            lbDetainID.Text = Detain.DetainId.ToString();
             lbDetainDate.Text = Detain.DetainDate.ToString();
             lbFinefees.Text = Detain.FineFees.ToString();
             lbTotalFees.Text = (Detain.FineFees + int.Parse(lbAppFees.Text)).ToString();
-            clsUsers user = clsUsers.FindUser(Detain.CreatedByUserID);
+            clsUsers user = clsUsers.FindUser(Detain.CreatedByUserId);
             lbUserName.Text = user.UserName;
         }
 
@@ -114,8 +105,8 @@ namespace DVLD_project
                 return;
             }
             
-            clsDetainedLicenses Detain = clsDetainedLicenses.FindDetainByDetainID(int.Parse(lbDetainID.Text));
-            clsLicenses License = clsLicenses.FindLicenseByLicenseID(Detain.LicenseID);
+            var Detain = await _detainedLicenseClientService.FindByDetainIdAsync(int.Parse(lbDetainID.Text));
+            clsLicenses License = clsLicenses.FindLicenseByLicenseID(Detain.LicenseId);
             clsDrivers Driver = clsDrivers.FindDriverByID(License.DriverID);
             clsLicenses.ActivateLicense(License.LicenseID);
             var App = await _applicationClientService.AddApplication(new ApplicationDTO
@@ -130,10 +121,10 @@ namespace DVLD_project
             });          
             
             lbReleaseAppID.Text = App.ApplicationId.ToString();
-            Detain.ReleaseAppID = App.ApplicationId;    
+            Detain.ReleaseApplicationId = App.ApplicationId;    
             Detain.ReleaseDate = DateTime.Now;
-            Detain.ReleasedByUserID = CurrentUser.user.UserID;
-            Detain.Release();
+            Detain.ReleasedByUserId = CurrentUser.user.UserID;
+            await _detainedLicenseClientService.ReleaseAsync(Detain.DetainId,Detain);
             searchLicenseControl1.DisableFilter();
             btnSave.Enabled = false;
             MessageBox.Show($"License Released Successfully");
@@ -142,6 +133,23 @@ namespace DVLD_project
             lnkShowLicenseHistory.Enabled = true;
 
 
+        }
+
+        private async void frmReleaseDetain_Load(object sender, EventArgs e)
+        {
+            if (_detainid != -1)
+            {
+                var Detain = await _detainedLicenseClientService.FindByDetainIdAsync(_detainid);
+                searchLicenseControl1.LoadLicenseInfo(Detain.LicenseId);
+                lbLicenseID.Text = Detain.LicenseId.ToString();
+                lbDetainID.Text = _detainid.ToString();
+                lbDetainDate.Text = Detain.DetainDate.ToString();
+                lbFinefees.Text = Detain.FineFees.ToString();
+                lbTotalFees.Text = (Detain.FineFees + int.Parse(lbAppFees.Text)).ToString();
+                clsUsers user = clsUsers.FindUser(Detain.CreatedByUserId);
+                lbUserName.Text = user.UserName;
+                searchLicenseControl1.DisableFilter();
+            }
         }
     }
 }

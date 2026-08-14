@@ -323,6 +323,7 @@
             this.Controls.Add(this.searchLicenseControl1);
             this.Name = "frmReleaseDetain";
             this.Text = "frmReleaseDetain";
+            this.Load += new System.EventHandler(this.frmReleaseDetain_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);

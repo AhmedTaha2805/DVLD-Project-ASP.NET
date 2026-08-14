@@ -1,4 +1,5 @@
 ﻿using DriversBuisnessLayer;
+using DVLD_project.Services;
 using InternationalLicensesBuisnessLayer;
 using PeopleBuisnessLayer;
 using System;
@@ -16,16 +17,17 @@ namespace DVLD_project
 {
     public partial class frmManageInternationalLicensesApplications : Form
     {
+        private readonly InternationalLicenseClientService _internationalLicenseClientService;
         public frmManageInternationalLicensesApplications()
         {
             InitializeComponent();
-            RefreshDataGrid();
-            lbRecord.Text = (IntAppsdatagrid.RowCount-1).ToString();
+            _internationalLicenseClientService = new InternationalLicenseClientService();
+            
         }
         
-        private void RefreshDataGrid()
+        private async Task RefreshDataGrid()
         {
-            IntAppsdatagrid.DataSource = clsIntLicenses.ListAllIntLicenses();
+            IntAppsdatagrid.DataSource = await _internationalLicenseClientService.ListAllIntLicensesAsync();
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -58,24 +60,24 @@ namespace DVLD_project
             }
         }
 
-        private void txtFilters_TextChanged(object sender, EventArgs e)
+        private async void txtFilters_TextChanged(object sender, EventArgs e)
         {
-            DataView dv = clsIntLicenses.ListAllIntLicenses().DefaultView;
+            DataView dv = (await _internationalLicenseClientService.ListAllIntLicensesAsDataTableAsync()).DefaultView;
 
             dv.RowFilter = $"Convert({cbFilters.Text},'System.String') like '{txtFilters.Text}%'";
 
             IntAppsdatagrid.DataSource = dv;
         }
 
-        private void cbActive_SelectedIndexChanged(object sender, EventArgs e)
+        private async void cbActive_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (cbActive.Text == "All")
             {
-                RefreshDataGrid();
+                await RefreshDataGrid();
             }
             else if (cbActive.Text == "Yes")
             {
-                DataView dv = clsIntLicenses.ListAllIntLicenses().DefaultView;
+                DataView dv = (await _internationalLicenseClientService.ListAllIntLicensesAsDataTableAsync()).DefaultView;
 
                 dv.RowFilter = $"Is Active = 1";
 
@@ -83,7 +85,7 @@ namespace DVLD_project
             }
             else if (cbActive.Text == "No")
             {
-                DataView dv = clsIntLicenses.ListAllIntLicenses().DefaultView;
+                DataView dv = (await _internationalLicenseClientService.ListAllIntLicensesAsDataTableAsync()).DefaultView;
 
                 dv.RowFilter = $"Is Active = 0";
 
@@ -135,6 +137,12 @@ namespace DVLD_project
             frmShowLicenseHistory frm = new frmShowLicenseHistory(Person.NationalNum);
             frm.ShowDialog();
 
+        }
+
+        private async void frmManageInternationalLicensesApplications_Load(object sender, EventArgs e)
+        {
+            await RefreshDataGrid();
+            lbRecord.Text = (IntAppsdatagrid.RowCount - 1).ToString();
         }
     }
 }

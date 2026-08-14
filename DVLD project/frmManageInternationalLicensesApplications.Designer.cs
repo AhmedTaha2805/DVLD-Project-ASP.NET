@@ -246,6 +246,7 @@
             this.Controls.Add(this.label6);
             this.Name = "frmManageInternationalLicensesApplications";
             this.Text = "frmManageInternationalLicensesApplications";
+            this.Load += new System.EventHandler(this.frmManageInternationalLicensesApplications_Load);
             ((System.ComponentModel.ISupportInitialize)(this.IntAppsdatagrid)).EndInit();
             this.contextMenuStrip1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();

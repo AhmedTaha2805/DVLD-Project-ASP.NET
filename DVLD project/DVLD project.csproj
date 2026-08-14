@@ -368,6 +368,8 @@
     <Compile Include="Services\ApplicationClientService.cs" />
     <Compile Include="Services\ApplicationTypeClientService.cs" />
     <Compile Include="Services\CountryClientService.cs" />
+    <Compile Include="Services\DetainedLicenseClientService.cs" />
+    <Compile Include="Services\InternationalLicenseClientService.cs" />
     <Compile Include="Services\LicenseClassClientService.cs" />
     <Compile Include="Services\TestAppointmentClientService.cs" />
     <Compile Include="Services\TestClientService.cs" />

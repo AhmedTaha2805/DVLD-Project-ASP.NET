@@ -1,5 +1,6 @@
 ﻿using ApplicationBuisnessLayer;
 using DriversBuisnessLayer;
+using DVLD_project.Services;
 using InternationalLicensesBuisnessLayer;
 using LicensesBuisnessLayer;
 using LocalDrivingLicenseApplicationsBuisnessLayer;
@@ -18,15 +19,18 @@ namespace DVLD_project
 {
     public partial class frmShowLicenseHistory : Form
     {
+        private readonly InternationalLicenseClientService _internationalLicenseClientService;
+        int _driverid;
         public frmShowLicenseHistory(string NationalNo)
         {
             InitializeComponent();
+            _internationalLicenseClientService = new InternationalLicenseClientService();
             this.AcceptButton = personDetailsWithFilter1.BtnSearch();
             clsPeople person = clsPeople.FindPerson(NationalNo);
             personDetailsWithFilter1.LoadPersonInfo(person.Id, true);
             clsDrivers Driver = clsDrivers.FindDriverBypersonID(person.Id);
             Localdatagrid.DataSource = clsLicenses.ListLocalLicenses(Driver.DriverID);
-            IntDataGrid.DataSource = clsIntLicenses.ListIntLicenses(Driver.DriverID);
+            _driverid = Driver.DriverID;
             lbRecord.Text = Localdatagrid.RowCount.ToString();
         }
 
@@ -78,6 +82,11 @@ namespace DVLD_project
 
                 contextMenuStrip1.Show(Cursor.Position);
             }
+        }
+
+        private async void frmShowLicenseHistory_Load(object sender, EventArgs e)
+        {
+            IntDataGrid.DataSource = await _internationalLicenseClientService.ListIntLicensesAsync(_driverid);
         }
     }
 }
