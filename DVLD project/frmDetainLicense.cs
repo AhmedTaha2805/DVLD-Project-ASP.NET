@@ -135,7 +135,7 @@ namespace DVLD_project
                 LicenseId = _LicenseID,
                 DetainDate = DateTime.Now,
                 FineFees = 150,
-                CreatedByUserId = CurrentUser.user.UserID,
+                CreatedByUserId = CurrentUser.user.UserId,
             });
             await _licenseClientService.DeActivateLicenseAsync(_LicenseID);
         

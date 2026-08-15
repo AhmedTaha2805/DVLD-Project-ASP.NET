@@ -1,4 +1,7 @@
-﻿using System;
+﻿using DTOs;
+using DVLD_project.Services;
+using PeopleBuisnessLayer;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,7 +10,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using PeopleBuisnessLayer;
 using UsersBuisnessLayer;
 
 namespace DVLD_project
@@ -18,10 +20,11 @@ namespace DVLD_project
         enMode Mode = enMode.AddNew;
 
         int UserID;
-        
+        private readonly UserClientService _userClientService;
         public FrmAddEditUser(int mode , int id = -1)
         {
             InitializeComponent();
+            _userClientService = new UserClientService();
             this.AcceptButton = personDetailsWithFilter1.BtnSearch();
             if(mode == 0)
             {
@@ -33,18 +36,7 @@ namespace DVLD_project
                 Mode = enMode.Update;
                 lbMode.Text = "Update User";
             }
-            if (id != -1)
-            {
-                UserID = id;
-                clsUsers User = clsUsers.FindUser(UserID);
-                personDetailsWithFilter1.LoadPersonInfo(User.PersonID);
-                lbUserID.Text = User.UserID.ToString();
-                txtUsername.Text = User.UserName;
-                txtPassword.Text = User.Password;
-                txtConfirmPassword.Text = User.Password;
-                chIsActive.Checked = User.IsActive;               
-            }
-
+            UserID = id;
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -65,37 +57,49 @@ namespace DVLD_project
         }
         
 
-        private void FrmAddEditUser_Load(object sender, EventArgs e)
+        private async void FrmAddEditUser_Load(object sender, EventArgs e)
         {
             if (Mode == enMode.Update)
             {
                 lbMode.Text = "Update User";
             }
+            if (UserID != -1)
+            {
+
+                var User = await _userClientService.FindUserAsync(UserID);
+                personDetailsWithFilter1.LoadPersonInfo(User.PersonId);
+                lbUserID.Text = User.UserId.ToString();
+                txtUsername.Text = User.UserName;
+                txtPassword.Text = User.Password;
+                txtConfirmPassword.Text = User.Password;
+                chIsActive.Checked = User.IsActive;
+            }
         }
 
-        private void AddUser()
-        {        
-            clsUsers user = new clsUsers();
-            user.PersonID = personDetailsWithFilter1.GetPersonID();
-            user.UserName = txtUsername.Text;
-            user.Password = txtPassword.Text;
-            user.IsActive = chIsActive.Checked;
-            user.Save();
-            UserID = user.UserID;
-        }
-
-        private void UpdateUser()
+        private async Task AddUser()
         {
-            
-            clsUsers user = clsUsers.FindUser(UserID);
-            user.PersonID = personDetailsWithFilter1.GetPersonID();
-            user.UserName = txtUsername.Text;
-            user.Password = txtPassword.Text;
-            user.IsActive = chIsActive.Checked;
-            user.Save();
+            var user = await _userClientService.AddUserAsync(new UserDTO
+            {
+                PersonId = personDetailsWithFilter1.GetPersonID(),
+                UserName = txtUsername.Text,
+                Password = txtPassword.Text,
+                IsActive = chIsActive.Checked
+            });          
+            UserID = user.UserId;
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async Task UpdateUser()
+        {
+            await _userClientService.UpdateUserAsync(new UserDTO
+            {
+                UserId = UserID,
+                UserName = txtUsername.Text,
+                Password = txtPassword.Text,
+                IsActive = chIsActive.Checked
+            });
+        }
+
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             
             if (personDetailsWithFilter1.GetPersonID() == -1)
@@ -116,12 +120,12 @@ namespace DVLD_project
             
             if (Mode == enMode.AddNew)
             {
-                if (clsUsers.FindUserByPersonID(personDetailsWithFilter1.GetPersonID()))
+                if (await _userClientService.FindUserByPersonIDAsync(personDetailsWithFilter1.GetPersonID()))
                 {
                     MessageBox.Show("This Person is already a user", "error", MessageBoxButtons.OK);
                     return;
                 }
-                AddUser();
+                await AddUser();
                 personDetailsWithFilter1.DisableFilterPersonControls();
                 lbMode.Text = "Update User";
                 lbUserID.Text = UserID.ToString();
@@ -130,7 +134,7 @@ namespace DVLD_project
             }
             else
             {
-                UpdateUser();
+                await UpdateUser();
                 MessageBox.Show("User Updated successfully ", "Congratulations", MessageBoxButtons.OK);
             }
         }

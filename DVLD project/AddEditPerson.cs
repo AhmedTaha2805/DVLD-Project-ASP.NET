@@ -40,7 +40,7 @@ namespace DVLD_project
             if (id != -1)
             {
                 ID = id;
-                addPersonControl1.GetID(ID);
+                
                 lbPersonID.Text = ID.ToString();
             }
         }
@@ -52,7 +52,8 @@ namespace DVLD_project
                 lbMode.Text = "Update Person";
             }
             await addPersonControl1.LoadCountries();
-            addPersonControl1.GetMode((int)Mode);     
+            addPersonControl1.GetMode((int)Mode);
+            addPersonControl1.GetID(ID);
         }
 
         private void addPersonControl1_OnSaveClick(int obj)

@@ -377,6 +377,7 @@
     <Compile Include="Services\TestAppointmentClientService.cs" />
     <Compile Include="Services\TestClientService.cs" />
     <Compile Include="Services\TestTypeClientService.cs" />
+    <Compile Include="Services\UserClientService.cs" />
     <Compile Include="UserDetailsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

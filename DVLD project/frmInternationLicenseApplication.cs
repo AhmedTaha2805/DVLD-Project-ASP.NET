@@ -65,7 +65,7 @@ namespace DVLD_project
                 ApplicationStatus = 3,
                 LastStatusDate = DateTime.Now,
                 PaidFees = 51,
-                CreatedByUserId = CurrentUser.user.UserID,
+                CreatedByUserId = CurrentUser.user.UserId,
                 ApplicantPersonId = Driver.PersonId
             });
             lbAppID.Text = App.ApplicationId.ToString();
@@ -77,7 +77,7 @@ namespace DVLD_project
                 IssueDate = DateTime.Now,
                 ExpirationDate = DateTime.Now.AddYears(1),
                 IsActive = true,
-                CreatedByUserId = CurrentUser.user.UserID
+                CreatedByUserId = CurrentUser.user.UserId
             });
             lbIntLicenseID.Text = IntLicense.InternationalLicenseId.ToString();
             searchLicenseControl1.DisableFilter();

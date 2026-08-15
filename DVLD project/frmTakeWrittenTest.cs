@@ -62,7 +62,7 @@ namespace DVLD_project
             var Test = await _testClient.AddTest(new TestDTO
             {
                 TestAppointmentId = AppointID,
-                CreatedByUserId = CurrentUser.user.UserID,
+                CreatedByUserId = CurrentUser.user.UserId,
                 Notes = txtnotes.Text,
                 TestResult = rbPass.Checked ? true : false
             });

@@ -50,7 +50,7 @@ namespace DVLD_project
             var driver = await _driverClientService.AddDriverAsync(new DriverDTO
             {
                 PersonId = App.ApplicantPersonId,
-                CreatedByUserId = CurrentUser.user.UserID,
+                CreatedByUserId = CurrentUser.user.UserId,
                 CreatedDate = DateTime.Now
             });
             Byte length = await _licenseClassClientService.GetLicenseClassValidityLengthById(LApp.LicenseClassId);
@@ -64,7 +64,7 @@ namespace DVLD_project
                 PaidFees = await _licenseClassClientService.GetLicenseClassFeesById(LApp.LicenseClassId),
                 IsActive = true,
                 IssueReason = 1,
-                CreatedByUserId = CurrentUser.user.UserID,
+                CreatedByUserId = CurrentUser.user.UserId,
                 DriverId = driver.DriverId,
             });
             App.LastStatusDate = DateTime.Now;

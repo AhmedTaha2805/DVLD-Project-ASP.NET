@@ -85,7 +85,7 @@ namespace DVLD_project
                 ApplicationStatus = 3,
                 LastStatusDate = DateTime.Now,
                 PaidFees = Convert.ToInt32(lbAppfees.Text),
-                CreatedByUserId = CurrentUser.user.UserID
+                CreatedByUserId = CurrentUser.user.UserId
             });
             lbReplacmentAppID.Text = App.ApplicationId.ToString();
             bool IsDamaged = rbDamaged.Checked;     
@@ -100,7 +100,7 @@ namespace DVLD_project
                 PaidFees = await _licenseClassClientService.GetLicenseClassFeesById(OldLicense.LicenseClass),
                 IsActive = true,
                 IssueReason = (Byte)(IsDamaged ? 3 : 4),
-                CreatedByUserId = CurrentUser.user.UserID
+                CreatedByUserId = CurrentUser.user.UserId
             });
             lbReplacedLicenseID.Text = NewLicense.LicenseId.ToString();
             searchLicenseControl1.DisableFilter();

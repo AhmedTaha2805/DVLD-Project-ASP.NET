@@ -45,6 +45,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\DTOs\DTOs.csproj">
+      <Project>{1ab3f794-6ee9-4fab-a485-ef4ff1802def}</Project>
+      <Name>DTOs</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\DVLD Buisness\UsersBuisnessLayer\UsersBuisnessLayer.csproj">
       <Project>{39ef17ff-210e-4a81-96c0-639a71268ac9}</Project>
       <Name>UsersBuisnessLayer</Name>

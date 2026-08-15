@@ -64,6 +64,7 @@
             this.Controls.Add(this.userDetailsControl1);
             this.Name = "frmUserDetails";
             this.Text = "frmUserDetails";
+            this.Load += new System.EventHandler(this.frmUserDetails_Load);
             this.ResumeLayout(false);
 
         }

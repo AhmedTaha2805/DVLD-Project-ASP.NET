@@ -25,6 +25,7 @@ namespace DVLD_project
         private readonly DetainedLicenseClientService _detainedLicenseClientService;
         private readonly LicenseClientService _licenseClientService;
         private readonly DriverClientService _driverClientService;
+        private readonly UserClientService _userClientService;
         int _detainid;
         public frmReleaseDetain(int DetainID = -1)
         {
@@ -33,6 +34,7 @@ namespace DVLD_project
             _licenseClientService = new LicenseClientService();
             _applicationClientService = new ApplicationClientService();
             _detainedLicenseClientService = new DetainedLicenseClientService();
+            _userClientService = new UserClientService();
             this.AcceptButton = searchLicenseControl1.BtnSearch();
             lbAppFees.Text = "15";
             _detainid = DetainID;
@@ -83,7 +85,7 @@ namespace DVLD_project
             lbDetainDate.Text = Detain.DetainDate.ToString();
             lbFinefees.Text = Detain.FineFees.ToString();
             lbTotalFees.Text = (Detain.FineFees + int.Parse(lbAppFees.Text)).ToString();
-            clsUsers user = clsUsers.FindUser(Detain.CreatedByUserId);
+            var user = await _userClientService.FindUserAsync(Detain.CreatedByUserId);
             lbUserName.Text = user.UserName;
         }
 
@@ -121,13 +123,13 @@ namespace DVLD_project
                 ApplicationStatus = 3,
                 LastStatusDate = DateTime.Now,
                 PaidFees = 15,
-                CreatedByUserId = CurrentUser.user.UserID          
+                CreatedByUserId = CurrentUser.user.UserId          
             });          
             
             lbReleaseAppID.Text = App.ApplicationId.ToString();
             Detain.ReleaseApplicationId = App.ApplicationId;    
             Detain.ReleaseDate = DateTime.Now;
-            Detain.ReleasedByUserId = CurrentUser.user.UserID;
+            Detain.ReleasedByUserId = CurrentUser.user.UserId;
             await _detainedLicenseClientService.ReleaseAsync(Detain.DetainId,Detain);
             searchLicenseControl1.DisableFilter();
             btnSave.Enabled = false;
@@ -150,7 +152,7 @@ namespace DVLD_project
                 lbDetainDate.Text = Detain.DetainDate.ToString();
                 lbFinefees.Text = Detain.FineFees.ToString();
                 lbTotalFees.Text = (Detain.FineFees + int.Parse(lbAppFees.Text)).ToString();
-                clsUsers user = clsUsers.FindUser(Detain.CreatedByUserId);
+                var user = await _userClientService.FindUserAsync(Detain.CreatedByUserId);
                 lbUserName.Text = user.UserName;
                 searchLicenseControl1.DisableFilter();
             }

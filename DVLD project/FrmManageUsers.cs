@@ -1,4 +1,5 @@
-﻿using PeopleBuisnessLayer;
+﻿using DVLD_project.Services;
+using PeopleBuisnessLayer;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,14 +15,16 @@ namespace DVLD_project
 {
     public partial class FrmManageUsers : Form
     {
+        private readonly UserClientService _userClientService;
         public FrmManageUsers()
         {
             InitializeComponent();
+            _userClientService = new UserClientService();
         }
 
-        private void RefreshDataGrid()
+        private async Task RefreshDataGrid()
         {
-            Usersdatagrid.DataSource = clsUsers.GetAllUsers();
+            Usersdatagrid.DataSource = await _userClientService.GetAllUsersAsync();
         }
 
         private void cbFilters_SelectedIndexChanged(object sender, EventArgs e)
@@ -35,9 +38,7 @@ namespace DVLD_project
             {
                 cbActive.Visible = true;
                 txtFilters.Visible = false;
-            }
-            
-
+            }          
         }
      
         private void btnClose_Click(object sender, EventArgs e)
@@ -45,10 +46,10 @@ namespace DVLD_project
             this.Close();
         }
 
-        private void FrmManageUsers_Load(object sender, EventArgs e)
+        private async void FrmManageUsers_Load(object sender, EventArgs e)
         {
-            RefreshDataGrid();
-            lbRecord.Text = (Usersdatagrid.RowCount - 1).ToString();
+            await RefreshDataGrid();
+            lbRecord.Text = (Usersdatagrid.RowCount).ToString();
         }
 
         private void txtFilters_KeyPress(object sender, KeyPressEventArgs e)
@@ -69,24 +70,24 @@ namespace DVLD_project
             }
         }
 
-        private void txtFilters_TextChanged(object sender, EventArgs e)
+        private async void txtFilters_TextChanged(object sender, EventArgs e)
         {
-            DataView dv = clsUsers.GetAllUsers().DefaultView;
+            DataView dv = (await _userClientService.GetAllUsersDataTableAsync()).DefaultView;
 
             dv.RowFilter = $"Convert({cbFilters.Text},'System.String') like '{txtFilters.Text}%'";
 
             Usersdatagrid.DataSource = dv;
         }
 
-        private void cbActive_SelectedIndexChanged(object sender, EventArgs e)
+        private async void cbActive_SelectedIndexChanged(object sender, EventArgs e)
         {
             if(cbActive.Text == "All")
             {
-                RefreshDataGrid();
+                await RefreshDataGrid();
             }
             else if(cbActive.Text == "Yes")
             {
-                DataView dv = clsUsers.GetAllUsers().DefaultView;
+                DataView dv = (await _userClientService.GetAllUsersDataTableAsync()).DefaultView;
 
                 dv.RowFilter = $"IsActive = 1";
 
@@ -94,7 +95,7 @@ namespace DVLD_project
             }
             else if(cbActive.Text == "No")
             {
-                DataView dv = clsUsers.GetAllUsers().DefaultView;
+                DataView dv = (await _userClientService.GetAllUsersDataTableAsync()).DefaultView;
 
                 dv.RowFilter = $"IsActive = 0";
 
@@ -103,11 +104,11 @@ namespace DVLD_project
 
         }
 
-        private void btnAddPerson_Click(object sender, EventArgs e)
+        private async void btnAddPerson_Click(object sender, EventArgs e)
         {
             Form frm = new FrmAddEditUser(0);
             frm.ShowDialog();
-            RefreshDataGrid();
+            await RefreshDataGrid();
         }
 
         private void Usersdatagrid_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
@@ -121,30 +122,29 @@ namespace DVLD_project
             }
         }
 
-        private void editToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void editToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int id = int.Parse(Usersdatagrid.SelectedRows[0].Cells["UserID"].Value.ToString());
             FrmAddEditUser frm = new FrmAddEditUser(1,id);
             frm.ShowDialog();
-            RefreshDataGrid();
+            await RefreshDataGrid();
         }
 
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int id = int.Parse(Usersdatagrid.SelectedRows[0].Cells["UserID"].Value.ToString());
-            if (clsUsers.DeleteUser(id))
-            {
-                RefreshDataGrid();
-                MessageBox.Show($"User deleted successfully with id = {id}", "Congratulations", MessageBoxButtons.OK);
-            }
+            int id = int.Parse(Usersdatagrid.SelectedRows[0].Cells["UserID"].Value.ToString());  
+            await _userClientService.DeleteUserAsync(id);
+            await RefreshDataGrid();
+            MessageBox.Show($"User deleted successfully with id = {id}", "Congratulations", MessageBoxButtons.OK);
+            
         }
 
-        private void showPersonDetailsToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void showPersonDetailsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int id = int.Parse(Usersdatagrid.SelectedRows[0].Cells["UserID"].Value.ToString());
             frmUserDetails frm = new frmUserDetails(id);
             frm.ShowDialog();
-            RefreshDataGrid();
+            await RefreshDataGrid();
         }
     }
 }

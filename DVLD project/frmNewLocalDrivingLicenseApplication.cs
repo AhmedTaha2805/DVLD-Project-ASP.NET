@@ -25,12 +25,14 @@ namespace DVLD_project
         private readonly LicenseClassClientService _licenseClassClientService;
         private readonly ApplicationClientService _applicationClientService;
         private readonly LocalDrivingLicenseApplicationClientService _localDrivingLicenseApplicationClientService;
+        private readonly UserClientService _userClientService;
         public frmNewLocalDrivingLicenseApplication(int id = -1)
         {
             InitializeComponent();
             _licenseClassClientService = new LicenseClassClientService();
             _applicationClientService = new ApplicationClientService();
             _localDrivingLicenseApplicationClientService = new LocalDrivingLicenseApplicationClientService();
+            _userClientService = new UserClientService();
             this.AcceptButton = personDetailsWithFilter1.BtnSearch();
             lbDate.Text = DateTime.Now.ToString();
             lbFees.Text = "15";
@@ -92,7 +94,7 @@ namespace DVLD_project
                     ApplicationTypeId = 1,
                     LastStatusDate = Convert.ToDateTime(lbDate.Text),
                     PaidFees = int.Parse(lbFees.Text),
-                    CreatedByUserId = CurrentUser.user.UserID                
+                    CreatedByUserId = CurrentUser.user.UserId                
                 });
                 var LocalApp = await _localDrivingLicenseApplicationClientService.AddApplicationAsync(new LocalDrivingLicenseApplicationDTO
                 {
@@ -112,7 +114,7 @@ namespace DVLD_project
                 var App = await _applicationClientService.FindApplication(LApp.ApplicationId);
                 lbDate.Text = App.ApplicationDate.ToString();
                 lbFees.Text = App.PaidFees.ToString();
-                clsUsers user = clsUsers.FindUser(App.CreatedByUserId);
+                var user = await _userClientService.FindUserAsync(App.CreatedByUserId);
                 lbUsername.Text = user.UserName;
                 lbAppID.Text = LAppID.ToString();
                 cbLicenseClass.SelectedIndex = LApp.LicenseClassId - 1;

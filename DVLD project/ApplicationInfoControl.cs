@@ -23,12 +23,14 @@ namespace DVLD_project
         private readonly LicenseClassClientService _licenseClassClientService;
         private readonly ApplicationClientService _applicationClientService;
         private readonly LocalDrivingLicenseApplicationClientService _localDrivingLicenseApplicationClientService;
+        private readonly UserClientService _userClientService;
         public ApplicationInfoControl()
         {
             InitializeComponent();  
             _applicationtypeClientService = new ApplicationTypeClientService();
             _licenseClassClientService = new LicenseClassClientService();
             _applicationClientService = new ApplicationClientService();
+            _userClientService = new UserClientService();
             _localDrivingLicenseApplicationClientService = new LocalDrivingLicenseApplicationClientService();
         }
 
@@ -48,7 +50,7 @@ namespace DVLD_project
             lbApplicantName.Text = $"{person.FirstName} {person.SecondName} {person.ThirdName} {person.LastName} ";
             lbDate.Text = App.ApplicationDate.ToString();
             lbStatusDate.Text = App.LastStatusDate.ToString();
-            clsUsers User = clsUsers.FindUser(App.CreatedByUserId);
+            var User = await _userClientService.FindUserAsync(App.CreatedByUserId);
             lbUserName.Text = User.UserName;
             if(lbStatus.Text == "Completed"){
                 lnkShowLicense.Enabled = true;

@@ -24,7 +24,7 @@ namespace DVLD_project
             _countryClientService = new CountryClientService();
         }
 
-        public async void LoadPersonInfo(int id)
+        public async Task LoadPersonInfo(int id)
         {
             
             clsPeople Person = clsPeople.FindPerson(id);
@@ -95,11 +95,11 @@ namespace DVLD_project
             }
         }
 
-        private void lnkEditPersonInfo_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private async void lnkEditPersonInfo_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             AddEditPersonForm frm = new AddEditPersonForm(1, Currentid);
             frm.ShowDialog();
-            LoadPersonInfo(Currentid);
+            await LoadPersonInfo(Currentid);
         }
 
         public int GetPersonID()

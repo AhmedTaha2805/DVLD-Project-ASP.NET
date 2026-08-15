@@ -82,7 +82,7 @@ namespace DVLD_project
                     PaidFees = 10,
                     LocalDrivingLicenseApplicationId = int.Parse(lbAppID.Text),
                     AppointmentDate = dateTimePicker1.Value,
-                    CreatedByUserId = CurrentUser.user.UserID,
+                    CreatedByUserId = CurrentUser.user.UserId,
                 };
                 if (_Retake)
                 {
@@ -94,7 +94,7 @@ namespace DVLD_project
                         ApplicationDate = DateTime.Now,
                         ApplicationTypeId = 7,
                         LastStatusDate = DateTime.Now,
-                        CreatedByUserId = CurrentUser.user.UserID
+                        CreatedByUserId = CurrentUser.user.UserId
                     });
                     dto.RetakeTestApplicationId = int.Parse(lbRetakeAppID.Text);
                 }

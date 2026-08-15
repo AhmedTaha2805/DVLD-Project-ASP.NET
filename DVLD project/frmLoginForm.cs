@@ -1,4 +1,5 @@
 ﻿using CurrentUserInformation;
+using DVLD_project.Services;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -16,9 +17,11 @@ namespace DVLD_project
 {
     public partial class frmLoginForm : Form
     {
+        private readonly UserClientService _userClientService;
         public frmLoginForm()
         {
             InitializeComponent();
+            _userClientService = new UserClientService();
             string UserName = Registry.GetValue(CurrentUser.LoginRegisteryPath, "Username", null) as string;
             string Password = Registry.GetValue(CurrentUser.LoginRegisteryPath, "Password", null) as string;
             if (!string.IsNullOrEmpty(UserName))
@@ -29,10 +32,10 @@ namespace DVLD_project
             }
         }
 
-        private void btnLogin_Click(object sender, EventArgs e)
+        private async void btnLogin_Click(object sender, EventArgs e)
         {
             bool Remember = false;
-            clsUsers user = clsUsers.FindUser(txtUserName.Text,txtPassword.Text);
+            var user = await _userClientService.FindUserAsync(txtUserName.Text,txtPassword.Text);
             if (user != null)
             {
                 Registry.SetValue(CurrentUser.LoginRegisteryPath, "Username", string.Empty, RegistryValueKind.String);
@@ -54,8 +57,6 @@ namespace DVLD_project
                     txtPassword.Text = string.Empty;
                     chkRemember.Checked = false;
                 }
-                
-
             }
             else
             {

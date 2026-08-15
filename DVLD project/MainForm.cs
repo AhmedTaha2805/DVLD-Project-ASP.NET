@@ -34,7 +34,7 @@ namespace DVLD_project
 
         private void currentUserInfoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            frmUserDetails frm = new frmUserDetails(CurrentUser.user.UserID);
+            frmUserDetails frm = new frmUserDetails(CurrentUser.user.UserId);
             frm.ShowDialog();
         }
 

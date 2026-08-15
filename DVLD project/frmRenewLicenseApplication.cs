@@ -103,7 +103,7 @@ namespace DVLD_project
                 ApplicationStatus = 3,
                 LastStatusDate = DateTime.Now,
                 PaidFees = 7,
-                CreatedByUserId = CurrentUser.user.UserID
+                CreatedByUserId = CurrentUser.user.UserId
             });
             lbRenewAppID.Text = App.ApplicationId.ToString();
             var NewLicense = await _licenseClientService.AddLicenseAsync(new LicenseDTO
@@ -117,7 +117,7 @@ namespace DVLD_project
                 PaidFees = decimal.Parse(lbLicenseFees.Text),
                 IsActive = true,
                 IssueReason = 2,
-                CreatedByUserId = CurrentUser.user.UserID
+                CreatedByUserId = CurrentUser.user.UserId
             });
             lbRenewedLicenseID.Text = NewLicense.LicenseId.ToString();         
             searchLicenseControl1.DisableFilter();
