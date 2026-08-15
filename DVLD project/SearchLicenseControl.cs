@@ -1,4 +1,5 @@
-﻿using InternationalLicensesBuisnessLayer;
+﻿using DVLD_project.Services;
+using InternationalLicensesBuisnessLayer;
 using LicensesBuisnessLayer;
 using System;
 using System.Collections.Generic;
@@ -14,9 +15,11 @@ namespace DVLD_project
 {
     public partial class SearchLicenseControl : UserControl
     {
+        private readonly LicenseClientService _licenseClientService;
         public SearchLicenseControl()
         {
             InitializeComponent();
+            _licenseClientService = new LicenseClientService();
         }
 
         public event Action<int> OnSearchClick;
@@ -44,7 +47,7 @@ namespace DVLD_project
                 
                 if (IsFound)
                 {
-                    clsLicenses License = clsLicenses.FindLicenseByLicenseID(int.Parse(txtFind.Text));                  
+                    var License = await _licenseClientService.FindLicenseByLicenseIDAsync(int.Parse(txtFind.Text));                  
 
                     SearchClicked(int.Parse(txtFind.Text));
                 }

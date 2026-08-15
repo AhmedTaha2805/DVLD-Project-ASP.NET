@@ -23,9 +23,11 @@ namespace DVLD_project
         private readonly TestAppointmentClientService _testAppointmentClient;
         private readonly ApplicationClientService _applicationClientService;
         private readonly LocalDrivingLicenseApplicationClientService _localDrivingLicenseApplicationClientService;
+        private readonly LicenseClientService _licenseClientService;
         public frmLocalDrivingLicenseApplications()
         {
             InitializeComponent();
+            _licenseClientService = new LicenseClientService();
             _testAppointmentClient = new TestAppointmentClientService();
             _applicationClientService = new ApplicationClientService();
             _localDrivingLicenseApplicationClientService = new LocalDrivingLicenseApplicationClientService();
@@ -276,8 +278,8 @@ namespace DVLD_project
         {
             int id = int.Parse(LocalAppsdatagrid.SelectedRows[0].Cells["L.D.L AppID"].Value.ToString());
             var LApp = await _localDrivingLicenseApplicationClientService.FindApplicationAsync(id);
-            clsLicenses License = clsLicenses.FindLicenseByApplicationID(LApp.LocalDrivingLicenseApplicationId);
-            frmLicenseInfo frm = new frmLicenseInfo(License.LicenseID);  
+            var License = await _licenseClientService.FindLicenseByApplicationIDAsync(LApp.LocalDrivingLicenseApplicationId);
+            frmLicenseInfo frm = new frmLicenseInfo(License.LicenseId);  
             frm.ShowDialog();
         }
 

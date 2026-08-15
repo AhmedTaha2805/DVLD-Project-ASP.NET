@@ -24,11 +24,15 @@ namespace DVLD_project
         int _LicenseID;
         private readonly LicenseClassClientService _licenseClassClientService;
         private readonly ApplicationClientService _applicationClientService;
+        private readonly LicenseClientService _licenseClientService;
+        private readonly DriverClientService _driverClientService;
         public frmRenewLicenseApplication()
         {
             InitializeComponent();
+            _licenseClientService = new LicenseClientService();
             _applicationClientService = new ApplicationClientService();
             _licenseClassClientService = new LicenseClassClientService();
+            _driverClientService = new DriverClientService();
             this.AcceptButton = searchLicenseControl1.BtnSearch();
         }
 
@@ -41,11 +45,11 @@ namespace DVLD_project
         {
             lbOldLicenseID.Text = LicenseID.ToString();
             _LicenseID = LicenseID;
-            clsLicenses License = clsLicenses.FindLicenseByLicenseID(LicenseID);
-            lbLicenseFees.Text = (await _licenseClassClientService.GetLicenseClassFeesById(License.LicenseClassID)).ToString();
+            var License = await _licenseClientService.FindLicenseByLicenseIDAsync(LicenseID);
+            lbLicenseFees.Text = (await _licenseClassClientService.GetLicenseClassFeesById(License.LicenseClass)).ToString();
             lbTotalFees.Text = (int.Parse(lbLicenseFees.Text) + int.Parse(lbAppFees.Text)).ToString();
-            lbExpirationDate.Text = DateTime.Now.AddYears(await _licenseClassClientService.GetLicenseClassValidityLengthById(License.LicenseClassID)).ToString();
-            if (!clsLicenses.IsExpired(LicenseID, DateTime.Now)) 
+            lbExpirationDate.Text = DateTime.Now.AddYears(await _licenseClassClientService.GetLicenseClassValidityLengthById(License.LicenseClass)).ToString();
+            if (!await _licenseClientService.IsExpiredAsync(LicenseID, DateTime.Now)) 
             {
                 btnSave.Enabled = false;
                 lnkShowLicenseHistory.Enabled = false;
@@ -57,7 +61,7 @@ namespace DVLD_project
                 btnSave.Enabled = true;
                 lnkShowLicenseHistory.Enabled = true;
             }
-            if (!clsLicenses.IsLicenseActive(LicenseID))
+            if (!await _licenseClientService.IsLicenseActiveAsync(LicenseID))
             {
                 btnSave.Enabled = false;
                 lnkShowLicenseHistory.Enabled = false;
@@ -88,12 +92,12 @@ namespace DVLD_project
                 return;
             }
             
-            clsLicenses OldLicense = clsLicenses.FindLicenseByLicenseID(int.Parse(lbOldLicenseID.Text));
-            clsLicenses.DeActivateLicense(_LicenseID);
-            clsDrivers Driver = clsDrivers.FindDriverByID(OldLicense.DriverID);
+            var OldLicense = await _licenseClientService.FindLicenseByLicenseIDAsync(int.Parse(lbOldLicenseID.Text));
+            await _licenseClientService.DeActivateLicenseAsync(_LicenseID);
+            var Driver = await _driverClientService.FindDriverByIDAsync(OldLicense.DriverId);
             var App = await _applicationClientService.AddApplication(new ApplicationDTO
             {
-                ApplicantPersonId = Driver.PersonID,
+                ApplicantPersonId = Driver.PersonId,
                 ApplicationDate = DateTime.Now,
                 ApplicationTypeId = 2,
                 ApplicationStatus = 3,
@@ -102,31 +106,32 @@ namespace DVLD_project
                 CreatedByUserId = CurrentUser.user.UserID
             });
             lbRenewAppID.Text = App.ApplicationId.ToString();
-            clsLicenses NewLicense = new clsLicenses();
-            NewLicense.AppID = App.ApplicationId;
-            NewLicense.DriverID = Driver.DriverID;
-            NewLicense.LicenseClassID = OldLicense.LicenseClassID;
-            NewLicense.IssueDate = DateTime.Now;
-            NewLicense.ExpirationDate = DateTime.Now.AddYears(await _licenseClassClientService.GetLicenseClassValidityLengthById(NewLicense.LicenseClassID));
-            NewLicense.notes = txtnotes.Text;
-            NewLicense.PaidFees = int.Parse(lbLicenseFees.Text);
-            NewLicense.IsActive = true;
-            NewLicense.IssueReason = 2;
-            NewLicense.CreatedByUserID = CurrentUser.user.UserID;
-            NewLicense.AddLicense();
-            lbRenewedLicenseID.Text = NewLicense.LicenseID.ToString();         
+            var NewLicense = await _licenseClientService.AddLicenseAsync(new LicenseDTO
+            {
+                ApplicationId = App.ApplicationId,
+                DriverId = Driver.DriverId,
+                LicenseClass = OldLicense.LicenseClass,
+                IssueDate = DateTime.Now,
+                ExpirationDate = DateTime.Now.AddYears(await _licenseClassClientService.GetLicenseClassValidityLengthById(OldLicense.LicenseClass)),
+                Notes = txtnotes.Text,
+                PaidFees = decimal.Parse(lbLicenseFees.Text),
+                IsActive = true,
+                IssueReason = 2,
+                CreatedByUserId = CurrentUser.user.UserID
+            });
+            lbRenewedLicenseID.Text = NewLicense.LicenseId.ToString();         
             searchLicenseControl1.DisableFilter();
             btnSave.Enabled = false;
-            MessageBox.Show($"License Renewd Successfully with id = {NewLicense.LicenseID}");
+            MessageBox.Show($"License Renewd Successfully with id = {NewLicense.LicenseId}");
             lnkShowLicense.Enabled = true;
             lnkShowLicenseHistory.Enabled = true;
         }
 
-        private void lnkShowLicenseHistory_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private async void lnkShowLicenseHistory_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            clsLicenses License = clsLicenses.FindLicenseByLicenseID(_LicenseID);
-            clsDrivers Driver = clsDrivers.FindDriverByID(License.DriverID);
-            clsPeople Person = clsPeople.FindPerson(Driver.PersonID);
+            var License = await _licenseClientService.FindLicenseByLicenseIDAsync(_LicenseID);
+            var Driver = await _driverClientService.FindDriverByIDAsync(License.DriverId);
+            clsPeople Person = clsPeople.FindPerson(Driver.PersonId);
             frmShowLicenseHistory frm = new frmShowLicenseHistory(Person.NationalNum);
             frm.ShowDialog();
         }

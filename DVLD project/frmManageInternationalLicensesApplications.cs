@@ -18,9 +18,11 @@ namespace DVLD_project
     public partial class frmManageInternationalLicensesApplications : Form
     {
         private readonly InternationalLicenseClientService _internationalLicenseClientService;
+        private readonly DriverClientService _driverClientService;
         public frmManageInternationalLicensesApplications()
         {
             InitializeComponent();
+            _driverClientService = new DriverClientService();
             _internationalLicenseClientService = new InternationalLicenseClientService();
             
         }
@@ -111,11 +113,11 @@ namespace DVLD_project
             }
         }
 
-        private void showPersonDetailsToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void showPersonDetailsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int DriverID = int.Parse(IntAppsdatagrid.SelectedRows[0].Cells["Driver ID"].Value.ToString());
-            clsDrivers Driver = clsDrivers.FindDriverByID(DriverID);
-            clsPeople Person = clsPeople.FindPerson(Driver.PersonID);
+            var Driver = await _driverClientService.FindDriverByIDAsync(DriverID);
+            clsPeople Person = clsPeople.FindPerson(Driver.PersonId);
             frmPersonDetails frm = new frmPersonDetails(Person.Id);
             frm.ShowDialog();
 
@@ -129,11 +131,11 @@ namespace DVLD_project
 
         }
 
-        private void showPersonLicenseHistoryToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void showPersonLicenseHistoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int DriverID = int.Parse(IntAppsdatagrid.SelectedRows[0].Cells["Driver ID"].Value.ToString());
-            clsDrivers Driver = clsDrivers.FindDriverByID(DriverID);
-            clsPeople Person = clsPeople.FindPerson(Driver.PersonID);
+            var Driver = await _driverClientService.FindDriverByIDAsync(DriverID);
+            clsPeople Person = clsPeople.FindPerson(Driver.PersonId);
             frmShowLicenseHistory frm = new frmShowLicenseHistory(Person.NationalNum);
             frm.ShowDialog();
 

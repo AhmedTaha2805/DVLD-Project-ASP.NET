@@ -20,17 +20,20 @@ namespace DVLD_project
     public partial class frmShowLicenseHistory : Form
     {
         private readonly InternationalLicenseClientService _internationalLicenseClientService;
+        private readonly LicenseClientService _licenseClientService;
+        private readonly DriverClientService _driverClientService;
         int _driverid;
+        int _personid;
         public frmShowLicenseHistory(string NationalNo)
         {
             InitializeComponent();
+            _licenseClientService = new LicenseClientService();
             _internationalLicenseClientService = new InternationalLicenseClientService();
+            _driverClientService = new DriverClientService();
             this.AcceptButton = personDetailsWithFilter1.BtnSearch();
             clsPeople person = clsPeople.FindPerson(NationalNo);
             personDetailsWithFilter1.LoadPersonInfo(person.Id, true);
-            clsDrivers Driver = clsDrivers.FindDriverBypersonID(person.Id);
-            Localdatagrid.DataSource = clsLicenses.ListLocalLicenses(Driver.DriverID);
-            _driverid = Driver.DriverID;
+            _personid = person.Id;
             lbRecord.Text = Localdatagrid.RowCount.ToString();
         }
 
@@ -86,7 +89,10 @@ namespace DVLD_project
 
         private async void frmShowLicenseHistory_Load(object sender, EventArgs e)
         {
+            var Driver = await _driverClientService.FindDriverByPersonIDAsync(_personid);
+            _driverid = Driver.DriverId;
             IntDataGrid.DataSource = await _internationalLicenseClientService.ListIntLicensesAsync(_driverid);
+            Localdatagrid.DataSource = await _licenseClientService.ListLocalLicensesAsync(_driverid);
         }
     }
 }

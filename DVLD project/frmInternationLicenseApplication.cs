@@ -24,9 +24,13 @@ namespace DVLD_project
         int _LicenseID;
         private readonly ApplicationClientService _applicationClientService;
         private readonly InternationalLicenseClientService _internationalLicenseClientService;
+        private readonly LicenseClientService _licenseClientService;
+        private readonly DriverClientService _driverClientService;
         public frmInternationLicenseApplication()
         {
             InitializeComponent();
+            _driverClientService = new DriverClientService();
+            _licenseClientService = new LicenseClientService();
             _applicationClientService = new ApplicationClientService();
             _internationalLicenseClientService = new InternationalLicenseClientService();
             this.AcceptButton = searchLicenseControl1.BtnSearch();
@@ -52,8 +56,8 @@ namespace DVLD_project
             {
                 return;
             }
-            clsLicenses license = clsLicenses.FindLicenseByLicenseID(int.Parse(lbLocalLicenseID.Text));
-            clsDrivers Driver = clsDrivers.FindDriverByID(license.DriverID);
+            var license = await _licenseClientService.FindLicenseByLicenseIDAsync(int.Parse(lbLocalLicenseID.Text));
+            var Driver = await _driverClientService.FindDriverByIDAsync(license.DriverId);
             var App = await _applicationClientService.AddApplication(new ApplicationDTO
             {
                 ApplicationDate = DateTime.Now,
@@ -62,14 +66,14 @@ namespace DVLD_project
                 LastStatusDate = DateTime.Now,
                 PaidFees = 51,
                 CreatedByUserId = CurrentUser.user.UserID,
-                ApplicantPersonId = Driver.PersonID
+                ApplicantPersonId = Driver.PersonId
             });
             lbAppID.Text = App.ApplicationId.ToString();
             var IntLicense = await _internationalLicenseClientService.AddLicenseAsync(new InternationalLicenseDTO
             {
                 ApplicationId = App.ApplicationId,
-                DriverId = Driver.DriverID,
-                IssuedUsingLocalLicenseId = license.LicenseID,
+                DriverId = Driver.DriverId,
+                IssuedUsingLocalLicenseId = license.LicenseId,
                 IssueDate = DateTime.Now,
                 ExpirationDate = DateTime.Now.AddYears(1),
                 IsActive = true,
@@ -100,8 +104,8 @@ namespace DVLD_project
                 btnSave.Enabled = true;
                 lnkShowLicenseHistory.Enabled = true;
             }
-            clsLicenses License = clsLicenses.FindLicenseByLicenseID(LicenseID);
-            if (License.LicenseClassID != 3)
+            var License = await _licenseClientService.FindLicenseByLicenseIDAsync(LicenseID);
+            if (License.LicenseClass != 3)
             {
                 btnSave.Enabled = false;
                 lnkShowLicenseHistory.Enabled = false;
@@ -114,7 +118,7 @@ namespace DVLD_project
                 lnkShowLicenseHistory.Enabled = true;
             }
 
-            if (!clsLicenses.IsLicenseActive(LicenseID))
+            if (!await _licenseClientService.IsLicenseActiveAsync(LicenseID))
             {
                 btnSave.Enabled = false;
                 lnkShowLicenseHistory.Enabled = false;
@@ -130,11 +134,11 @@ namespace DVLD_project
 
         }
 
-        private void lnkShowLicenseHistory_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private async void lnkShowLicenseHistory_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            clsLicenses License = clsLicenses.FindLicenseByLicenseID(_LicenseID);
-            clsDrivers Driver = clsDrivers.FindDriverByID(License.DriverID);
-            clsPeople Person = clsPeople.FindPerson(Driver.PersonID);
+            var License = await _licenseClientService.FindLicenseByLicenseIDAsync(_LicenseID);
+            var Driver = await _driverClientService.FindDriverByIDAsync(License.DriverId);
+            clsPeople Person = clsPeople.FindPerson(Driver.PersonId);
             frmShowLicenseHistory frm = new frmShowLicenseHistory(Person.NationalNum);
             frm.ShowDialog();
         }

@@ -1,4 +1,5 @@
 ﻿using DriversBuisnessLayer;
+using DVLD_project.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,14 +15,16 @@ namespace DVLD_project
 {
     public partial class frmManageDrivers : Form
     {
+        private readonly DriverClientService _driverClientService;
         public frmManageDrivers()
         {
             InitializeComponent();
+            _driverClientService = new DriverClientService();
         }
 
-        private void RefreshDataGrid()
+        private async Task RefreshDataGrid()
         {
-            Driversdatagrid.DataSource = clsDrivers.ListAllDrivers();
+            Driversdatagrid.DataSource = await _driverClientService.ListAllDriversAsync();
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -29,9 +32,9 @@ namespace DVLD_project
             this.Close();
         }
 
-        private void frmManageDrivers_Load(object sender, EventArgs e)
+        private async void frmManageDrivers_Load(object sender, EventArgs e)
         {
-            RefreshDataGrid();
+            await RefreshDataGrid();
             lbRecord.Text = (Driversdatagrid.RowCount - 1).ToString();
         }
 
@@ -53,9 +56,9 @@ namespace DVLD_project
             }
         }
 
-        private void txtFilters_TextChanged(object sender, EventArgs e)
+        private async void txtFilters_TextChanged(object sender, EventArgs e)
         {
-            DataView dv = clsDrivers.ListAllDrivers().DefaultView;
+            DataView dv = (await _driverClientService.ListAllDriversDataTableAsync()).DefaultView;
 
             dv.RowFilter = $"Convert([{cbFilters.Text}],'System.String') like '{txtFilters.Text}%'";
 

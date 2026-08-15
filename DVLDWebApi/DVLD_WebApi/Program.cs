@@ -23,6 +23,9 @@ builder.Services.AddScoped<TestAppointmentService>();
 builder.Services.AddScoped<ApplicationService>();
 builder.Services.AddScoped<DetainedLicenseService>();
 builder.Services.AddScoped<InternationalLicenseService>();
+builder.Services.AddScoped<LocalDrivingLicenseApplicationService>();
+builder.Services.AddScoped<LicenseService>();
+builder.Services.AddScoped<DriverService>();
 var app = builder.Build();
 
 

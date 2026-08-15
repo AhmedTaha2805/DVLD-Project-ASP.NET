@@ -23,10 +23,14 @@ namespace DVLD_project
     {
         private readonly ApplicationClientService _applicationClientService;
         private readonly DetainedLicenseClientService _detainedLicenseClientService;
+        private readonly LicenseClientService _licenseClientService;
+        private readonly DriverClientService _driverClientService;
         int _detainid;
         public frmReleaseDetain(int DetainID = -1)
         {
             InitializeComponent();
+            _driverClientService = new DriverClientService();
+            _licenseClientService = new LicenseClientService();
             _applicationClientService = new ApplicationClientService();
             _detainedLicenseClientService = new DetainedLicenseClientService();
             this.AcceptButton = searchLicenseControl1.BtnSearch();
@@ -43,9 +47,9 @@ namespace DVLD_project
         private async void searchLicenseControl1_OnSearchClick(int LicenseID)
         {
             lbLicenseID.Text = LicenseID.ToString();         
-            clsLicenses License = clsLicenses.FindLicenseByLicenseID(LicenseID);
+            var License = await _licenseClientService.FindLicenseByLicenseIDAsync(LicenseID);
 
-            if (clsLicenses.IsExpired(LicenseID, DateTime.Now))
+            if (await _licenseClientService.IsExpiredAsync(LicenseID, DateTime.Now))
             {
                 btnSave.Enabled = false;
                 lnkShowLicenseHistory.Enabled = false;
@@ -60,7 +64,7 @@ namespace DVLD_project
                 lnkShowLicense.Enabled = true;
             }
             
-            if (!License.IsDetained())
+            if (!await _licenseClientService.IsDetainedAsync(LicenseID))
             {
                 btnSave.Enabled = false;
                 lnkShowLicenseHistory.Enabled = false;
@@ -89,11 +93,11 @@ namespace DVLD_project
             frm.ShowDialog();
         }
 
-        private void lnkShowLicenseHistory_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private async void lnkShowLicenseHistory_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            clsLicenses License = clsLicenses.FindLicenseByLicenseID(int.Parse(lbLicenseID.Text));
-            clsDrivers Driver = clsDrivers.FindDriverByID(License.DriverID);
-            clsPeople Person = clsPeople.FindPerson(Driver.PersonID);
+            var License = await _licenseClientService.FindLicenseByLicenseIDAsync(int.Parse(lbLicenseID.Text));
+            var Driver = await _driverClientService.FindDriverByIDAsync(License.DriverId);
+            clsPeople Person = clsPeople.FindPerson(Driver.PersonId);
             frmShowLicenseHistory frm = new frmShowLicenseHistory(Person.NationalNum);
             frm.ShowDialog();
         }
@@ -106,12 +110,12 @@ namespace DVLD_project
             }
             
             var Detain = await _detainedLicenseClientService.FindByDetainIdAsync(int.Parse(lbDetainID.Text));
-            clsLicenses License = clsLicenses.FindLicenseByLicenseID(Detain.LicenseId);
-            clsDrivers Driver = clsDrivers.FindDriverByID(License.DriverID);
-            clsLicenses.ActivateLicense(License.LicenseID);
+            var License = await _licenseClientService.FindLicenseByLicenseIDAsync(Detain.LicenseId);
+            var Driver = await _driverClientService.FindDriverByIDAsync(License.DriverId);
+            await _licenseClientService.ActivateLicenseAsync(License.LicenseId);
             var App = await _applicationClientService.AddApplication(new ApplicationDTO
             {
-                ApplicantPersonId = Driver.PersonID,
+                ApplicantPersonId = Driver.PersonId,
                 ApplicationDate = DateTime.Now,
                 ApplicationTypeId = 5,
                 ApplicationStatus = 3,
@@ -128,7 +132,7 @@ namespace DVLD_project
             searchLicenseControl1.DisableFilter();
             btnSave.Enabled = false;
             MessageBox.Show($"License Released Successfully");
-            searchLicenseControl1.LoadLicenseInfo(License.LicenseID);
+            searchLicenseControl1.LoadLicenseInfo(License.LicenseId);
             lnkShowLicense.Enabled = true;
             lnkShowLicenseHistory.Enabled = true;
 

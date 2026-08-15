@@ -1,6 +1,7 @@
 ﻿using ApplicationBuisnessLayer;
 using CurrentUserInformation;
 using DriversBuisnessLayer;
+using DTOs;
 using DVLD_project.Services;
 using LicenseClassesBuisnessLayer;
 using LicensesBuisnessLayer;
@@ -23,11 +24,15 @@ namespace DVLD_project
         private readonly LicenseClassClientService _licenseClassClientService;
         private readonly ApplicationClientService _applicationClientService;
         private readonly LocalDrivingLicenseApplicationClientService _localDrivingLicenseApplicationClientService;
+        private readonly LicenseClientService _licenseClientService;
+        private readonly DriverClientService _driverClientService;
         public frmIssueDrivingLicenseFirstTime(int LDLAppID)
         {
             InitializeComponent();
             _licenseClassClientService = new LicenseClassClientService();
+            _licenseClassClientService = new LicenseClassClientService();
             _applicationClientService = new ApplicationClientService();
+            _driverClientService = new DriverClientService();
             _localDrivingLicenseApplicationClientService = new LocalDrivingLicenseApplicationClientService();
             CLDLAppID = LDLAppID;
             applicationInfoControl1.LoadAppInfo(LDLAppID);
@@ -41,25 +46,27 @@ namespace DVLD_project
         private async void btnSave_Click(object sender, EventArgs e)
         {
             var LApp = await _localDrivingLicenseApplicationClientService.FindApplicationAsync(CLDLAppID);
-            var App = await _applicationClientService.FindApplication(LApp.ApplicationId);
-            clsLicenses license = new clsLicenses();
-            license.AppID = LApp.ApplicationId;
-            license.LicenseClassID = LApp.LicenseClassId;
-            license.IssueDate = DateTime.Now;
-            Byte length = await _licenseClassClientService.GetLicenseClassValidityLengthById(license.LicenseClassID);
-            license.ExpirationDate = DateTime.Now.AddYears(length);
-            license.notes = txtnotes.Text;
-            license.PaidFees = (int)await _licenseClassClientService.GetLicenseClassFeesById(license.LicenseClassID);
-            license.IsActive = true;
-            license.IssueReason = 1;
-            license.CreatedByUserID = CurrentUser.user.UserID;
-            clsDrivers driver = new clsDrivers();
-            driver.PersonID = App.ApplicantPersonId;
-            driver.CreatedByUserID = CurrentUser.user.UserID;
-            driver.CreatedDate = DateTime.Now;
-            driver.AddDriver();
-            license.DriverID = driver.DriverID;
-            license.AddLicense();
+            var App = await _applicationClientService.FindApplication(LApp.ApplicationId);                      
+            var driver = await _driverClientService.AddDriverAsync(new DriverDTO
+            {
+                PersonId = App.ApplicantPersonId,
+                CreatedByUserId = CurrentUser.user.UserID,
+                CreatedDate = DateTime.Now
+            });
+            Byte length = await _licenseClassClientService.GetLicenseClassValidityLengthById(LApp.LicenseClassId);
+            await _licenseClientService.AddLicenseAsync(new LicenseDTO
+            {
+                ApplicationId = LApp.ApplicationId,
+                LicenseClass = LApp.LicenseClassId,
+                IssueDate = DateTime.Now,
+                ExpirationDate = DateTime.Now.AddYears(length),
+                Notes = txtnotes.Text,
+                PaidFees = await _licenseClassClientService.GetLicenseClassFeesById(LApp.LicenseClassId),
+                IsActive = true,
+                IssueReason = 1,
+                CreatedByUserId = CurrentUser.user.UserID,
+                DriverId = driver.DriverId,
+            });
             App.LastStatusDate = DateTime.Now;
             App.ApplicationStatus = 3;
             await _applicationClientService.UpdateApplication(App);

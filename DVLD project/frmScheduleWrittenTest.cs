@@ -30,7 +30,7 @@ namespace DVLD_project
 
         private async Task RefreshDataGrid(int AppID)
         {
-            Appointmentsdatagrid.DataSource =await _testAppointmentClient.GetTestAppointmentsByLDLAppId.GetAppointments(AppID, 2);
+            Appointmentsdatagrid.DataSource =await _testAppointmentClient.GetTestAppointmentsByLDLAppId(AppID, 2);
         }
 
         private async void frmScheduleWrittenTest_Load(object sender, EventArgs e)

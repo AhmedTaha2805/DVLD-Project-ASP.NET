@@ -38,7 +38,7 @@ namespace DVLD_project
             Appointmentsdatagrid.DataSource = await _testAppointmentClient.GetTestAppointmentsByLDLAppId(CLDLAppID,1);
         }
 
-        private async Task frmScheduleVisionTest_Load(object sender, EventArgs e)
+        private async void frmScheduleVisionTest_Load(object sender, EventArgs e)
         {
             await RefreshDataGrid();
             lbRecord.Text = Appointmentsdatagrid.RowCount.ToString();

@@ -17,17 +17,19 @@ namespace DVLD_project
     public partial class IntLicenseInfoControl : UserControl
     {
         private readonly InternationalLicenseClientService _internationalLicenseClientService;
+        private readonly DriverClientService _driverClientService;
         public IntLicenseInfoControl()
         {
             InitializeComponent();
+            _driverClientService = new DriverClientService();
             _internationalLicenseClientService = new InternationalLicenseClientService();
         }
 
         public async void LoadLicenseInfo(int IntLicenseID)
         {
             var License = await _internationalLicenseClientService.FindLicenseByLicenseIdAsync(IntLicenseID);
-            clsDrivers Driver = clsDrivers.FindDriverByID(License.DriverId);
-            clsPeople Person = clsPeople.FindPerson(Driver.PersonID);
+            var Driver = await _driverClientService.FindDriverByIDAsync(License.DriverId);
+            clsPeople Person = clsPeople.FindPerson(Driver.PersonId);
             lbName.Text = Person.FullName();
             lbIntLicenseID.Text = IntLicenseID.ToString();
             lbLicenseID.Text = License.IssuedUsingLocalLicenseId.ToString();

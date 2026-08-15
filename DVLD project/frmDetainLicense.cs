@@ -23,9 +23,13 @@ namespace DVLD_project
     {
         int _LicenseID;
         private readonly DetainedLicenseClientService _detainedLicenseClientService;
+        private readonly LicenseClientService _licenseClientService;
+        private readonly DriverClientService _driverClientService;
         public frmDetainLicense()
         {
             InitializeComponent();
+            _driverClientService = new DriverClientService();
+            _licenseClientService = new LicenseClientService();
             _detainedLicenseClientService = new DetainedLicenseClientService();
             this.AcceptButton = searchLicenseControl1.BtnSearch();
         }
@@ -35,13 +39,13 @@ namespace DVLD_project
             this.Close();
         }
 
-        private void searchLicenseControl1_OnSearchClick(int LicenseID)
+        private async void searchLicenseControl1_OnSearchClick(int LicenseID)
         {
             lbLicenseID.Text = LicenseID.ToString();
             _LicenseID = LicenseID;
-            clsLicenses License = clsLicenses.FindLicenseByLicenseID(LicenseID);
+            var License = await _licenseClientService.FindLicenseByLicenseIDAsync(LicenseID);
             
-            if (clsLicenses.IsExpired(LicenseID, DateTime.Now))
+            if (await _licenseClientService.IsExpiredAsync(LicenseID, DateTime.Now))
             {
                 btnSave.Enabled = false;
                 lnkShowLicenseHistory.Enabled = false;   
@@ -55,7 +59,7 @@ namespace DVLD_project
                 lnkShowLicenseHistory.Enabled = true;
                 lnkShowLicense.Enabled = true;
             }
-            if (!clsLicenses.IsLicenseActive(LicenseID))
+            if (! await _licenseClientService.IsLicenseActiveAsync(LicenseID))
             {
                 btnSave.Enabled = false;
                 lnkShowLicenseHistory.Enabled = false;
@@ -69,7 +73,7 @@ namespace DVLD_project
                 lnkShowLicenseHistory.Enabled = true;
                 lnkShowLicense.Enabled = true;
             }
-            if (License.IsDetained())
+            if (await _licenseClientService.IsDetainedAsync(LicenseID))
             {
                 btnSave.Enabled = false;
                 lnkShowLicenseHistory.Enabled = false;
@@ -105,11 +109,11 @@ namespace DVLD_project
             lbUserName.Text = CurrentUser.user.UserName;
         }
 
-        private void lnkShowLicenseHistory_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private async void lnkShowLicenseHistory_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            clsLicenses License = clsLicenses.FindLicenseByLicenseID(_LicenseID);
-            clsDrivers Driver = clsDrivers.FindDriverByID(License.DriverID);
-            clsPeople Person = clsPeople.FindPerson(Driver.PersonID);
+            var License = await _licenseClientService.FindLicenseByLicenseIDAsync(_LicenseID);
+            var Driver = await _driverClientService.FindDriverByIDAsync(License.DriverId);
+            clsPeople Person = clsPeople.FindPerson(Driver.PersonId);
             frmShowLicenseHistory frm = new frmShowLicenseHistory(Person.NationalNum);
             frm.ShowDialog();
         }
@@ -133,7 +137,7 @@ namespace DVLD_project
                 FineFees = 150,
                 CreatedByUserId = CurrentUser.user.UserID,
             });
-            clsLicenses.DeActivateLicense(_LicenseID);
+            await _licenseClientService.DeActivateLicenseAsync(_LicenseID);
         
             lbDetainID.Text = DetainedLicense.DetainId.ToString();
             searchLicenseControl1.DisableFilter();

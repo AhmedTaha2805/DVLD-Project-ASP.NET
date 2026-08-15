@@ -77,8 +77,8 @@
             this.cbFilters.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbFilters.FormattingEnabled = true;
             this.cbFilters.Items.AddRange(new object[] {
-            "DriverID",
-            "PersonID",
+            "DriverId",
+            "PersonId",
             "NationalNo",
             "FullName",
             "CreatedDate",
