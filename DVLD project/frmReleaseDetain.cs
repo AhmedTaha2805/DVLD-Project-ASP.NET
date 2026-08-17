@@ -26,6 +26,7 @@ namespace DVLD_project
         private readonly LicenseClientService _licenseClientService;
         private readonly DriverClientService _driverClientService;
         private readonly UserClientService _userClientService;
+        private readonly PeopleClientService _peopleClientService;
         int _detainid;
         public frmReleaseDetain(int DetainID = -1)
         {
@@ -35,6 +36,7 @@ namespace DVLD_project
             _applicationClientService = new ApplicationClientService();
             _detainedLicenseClientService = new DetainedLicenseClientService();
             _userClientService = new UserClientService();
+            _peopleClientService = new PeopleClientService();
             this.AcceptButton = searchLicenseControl1.BtnSearch();
             lbAppFees.Text = "15";
             _detainid = DetainID;
@@ -99,8 +101,8 @@ namespace DVLD_project
         {
             var License = await _licenseClientService.FindLicenseByLicenseIDAsync(int.Parse(lbLicenseID.Text));
             var Driver = await _driverClientService.FindDriverByIDAsync(License.DriverId);
-            clsPeople Person = clsPeople.FindPerson(Driver.PersonId);
-            frmShowLicenseHistory frm = new frmShowLicenseHistory(Person.NationalNum);
+            var Person = await _peopleClientService.FindPersonAsync(Driver.PersonId);
+            frmShowLicenseHistory frm = new frmShowLicenseHistory(Person.NationalNo);
             frm.ShowDialog();
         }
 

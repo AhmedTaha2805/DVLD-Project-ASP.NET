@@ -19,11 +19,13 @@ namespace DVLD_project
     {
         private readonly InternationalLicenseClientService _internationalLicenseClientService;
         private readonly DriverClientService _driverClientService;
+        private readonly PeopleClientService _peopleClientService;
         public frmManageInternationalLicensesApplications()
         {
             InitializeComponent();
             _driverClientService = new DriverClientService();
             _internationalLicenseClientService = new InternationalLicenseClientService();
+            _peopleClientService = new PeopleClientService();
             
         }
         
@@ -117,8 +119,8 @@ namespace DVLD_project
         {
             int DriverID = int.Parse(IntAppsdatagrid.SelectedRows[0].Cells["Driver ID"].Value.ToString());
             var Driver = await _driverClientService.FindDriverByIDAsync(DriverID);
-            clsPeople Person = clsPeople.FindPerson(Driver.PersonId);
-            frmPersonDetails frm = new frmPersonDetails(Person.Id);
+            var Person = await _peopleClientService.FindPersonAsync(Driver.PersonId);
+            frmPersonDetails frm = new frmPersonDetails(Person.PersonId);
             frm.ShowDialog();
 
         }
@@ -135,8 +137,8 @@ namespace DVLD_project
         {
             int DriverID = int.Parse(IntAppsdatagrid.SelectedRows[0].Cells["Driver ID"].Value.ToString());
             var Driver = await _driverClientService.FindDriverByIDAsync(DriverID);
-            clsPeople Person = clsPeople.FindPerson(Driver.PersonId);
-            frmShowLicenseHistory frm = new frmShowLicenseHistory(Person.NationalNum);
+            var Person = await _peopleClientService.FindPersonAsync(Driver.PersonId);
+            frmShowLicenseHistory frm = new frmShowLicenseHistory(Person.NationalNo);
             frm.ShowDialog();
 
         }
@@ -144,7 +146,7 @@ namespace DVLD_project
         private async void frmManageInternationalLicensesApplications_Load(object sender, EventArgs e)
         {
             await RefreshDataGrid();
-            lbRecord.Text = (IntAppsdatagrid.RowCount - 1).ToString();
+            lbRecord.Text = (IntAppsdatagrid.RowCount).ToString();
         }
     }
 }

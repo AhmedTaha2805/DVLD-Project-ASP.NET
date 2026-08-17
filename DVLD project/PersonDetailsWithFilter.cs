@@ -46,15 +46,15 @@ namespace DVLD_project
             
         }
 
-        private void btnSearchPerson_Click(object sender, EventArgs e)
+        private async void btnSearchPerson_Click(object sender, EventArgs e)
         {
             if(cbFilter.Text == "Person ID")
             {
-                personDetailsControl1.LoadPersonInfo(int.Parse(txtFind.Text));
+                await personDetailsControl1.LoadPersonInfo(int.Parse(txtFind.Text));
             }
             else
             {
-                personDetailsControl1.LoadPersonInfo(txtFind.Text);
+                await personDetailsControl1.LoadPersonInfo(txtFind.Text);
             }
         }
 
@@ -66,14 +66,14 @@ namespace DVLD_project
             
         }
 
-        private void AddEditPersonForm_DataBack(object sender , int PersonID)
+        private async void AddEditPersonForm_DataBack(object sender , int PersonID)
         {
-            personDetailsControl1.LoadPersonInfo(PersonID);
+            await personDetailsControl1.LoadPersonInfo(PersonID);
         }
 
-        public void LoadPersonInfo(int PersonID,bool Disabled = false)
+        public async Task LoadPersonInfo(int PersonID,bool Disabled = false)
         {
-            personDetailsControl1.LoadPersonInfo(PersonID);
+            await personDetailsControl1.LoadPersonInfo(PersonID);
             txtFind.Text = PersonID.ToString();
             txtFind.Enabled = true;
             cbFilter.SelectedIndex = 0;

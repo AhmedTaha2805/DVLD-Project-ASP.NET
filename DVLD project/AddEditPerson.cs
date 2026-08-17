@@ -53,7 +53,7 @@ namespace DVLD_project
             }
             await addPersonControl1.LoadCountries();
             addPersonControl1.GetMode((int)Mode);
-            addPersonControl1.GetID(ID);
+            await addPersonControl1.GetID(ID);
         }
 
         private void addPersonControl1_OnSaveClick(int obj)

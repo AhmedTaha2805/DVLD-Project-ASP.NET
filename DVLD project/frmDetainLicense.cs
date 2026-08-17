@@ -25,12 +25,14 @@ namespace DVLD_project
         private readonly DetainedLicenseClientService _detainedLicenseClientService;
         private readonly LicenseClientService _licenseClientService;
         private readonly DriverClientService _driverClientService;
+        private readonly PeopleClientService _peopleClientService;
         public frmDetainLicense()
         {
             InitializeComponent();
             _driverClientService = new DriverClientService();
             _licenseClientService = new LicenseClientService();
             _detainedLicenseClientService = new DetainedLicenseClientService();
+            _peopleClientService = new PeopleClientService();
             this.AcceptButton = searchLicenseControl1.BtnSearch();
         }
 
@@ -113,8 +115,8 @@ namespace DVLD_project
         {
             var License = await _licenseClientService.FindLicenseByLicenseIDAsync(_LicenseID);
             var Driver = await _driverClientService.FindDriverByIDAsync(License.DriverId);
-            clsPeople Person = clsPeople.FindPerson(Driver.PersonId);
-            frmShowLicenseHistory frm = new frmShowLicenseHistory(Person.NationalNum);
+            var Person = await _peopleClientService.FindPersonAsync(Driver.PersonId);
+            frmShowLicenseHistory frm = new frmShowLicenseHistory(Person.NationalNo);
             frm.ShowDialog();
         }
 

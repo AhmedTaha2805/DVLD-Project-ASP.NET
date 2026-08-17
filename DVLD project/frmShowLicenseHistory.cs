@@ -22,19 +22,20 @@ namespace DVLD_project
         private readonly InternationalLicenseClientService _internationalLicenseClientService;
         private readonly LicenseClientService _licenseClientService;
         private readonly DriverClientService _driverClientService;
+        private readonly PeopleClientService _peopleClientService;
         int _driverid;
         int _personid;
+        string _NationalNo;
         public frmShowLicenseHistory(string NationalNo)
         {
             InitializeComponent();
             _licenseClientService = new LicenseClientService();
             _internationalLicenseClientService = new InternationalLicenseClientService();
             _driverClientService = new DriverClientService();
+            _peopleClientService = new PeopleClientService();
             this.AcceptButton = personDetailsWithFilter1.BtnSearch();
-            clsPeople person = clsPeople.FindPerson(NationalNo);
-            personDetailsWithFilter1.LoadPersonInfo(person.Id, true);
-            _personid = person.Id;
-            lbRecord.Text = Localdatagrid.RowCount.ToString();
+            _NationalNo = NationalNo;
+            
         }
 
         private void LicensesTab_SelectedIndexChanged(object sender, EventArgs e)
@@ -89,10 +90,18 @@ namespace DVLD_project
 
         private async void frmShowLicenseHistory_Load(object sender, EventArgs e)
         {
-            var Driver = await _driverClientService.FindDriverByPersonIDAsync(_personid);
-            _driverid = Driver.DriverId;
-            IntDataGrid.DataSource = await _internationalLicenseClientService.ListIntLicensesAsync(_driverid);
-            Localdatagrid.DataSource = await _licenseClientService.ListLocalLicensesAsync(_driverid);
+            var person = await _peopleClientService.FindPersonByNationalNoAsync(_NationalNo);
+            _personid = person.PersonId;
+            var LoadPersonTask = personDetailsWithFilter1.LoadPersonInfo(person.PersonId, true);   
+            var DriverTask = _driverClientService.FindDriverByPersonIDAsync(_personid);
+            await Task.WhenAll(LoadPersonTask, DriverTask);
+            _driverid = DriverTask.Result.DriverId; 
+            var ListIntLicensesTask = _internationalLicenseClientService.ListIntLicensesAsync(_driverid);
+            var ListLocalLicensesTask = _licenseClientService.ListLocalLicensesAsync(_driverid);
+            await Task.WhenAll(ListIntLicensesTask, ListLocalLicensesTask);
+            IntDataGrid.DataSource = ListIntLicensesTask.Result;
+            Localdatagrid.DataSource = ListLocalLicensesTask.Result; 
+            lbRecord.Text = Localdatagrid.RowCount.ToString();
         }
     }
 }

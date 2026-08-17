@@ -12,6 +12,7 @@ using CountriesBuisnessLayer;
 using System.Text.RegularExpressions;
 using System.IO;
 using DVLD_project.Services;
+using DTOs;
 
 namespace DVLD_project
 {
@@ -20,6 +21,8 @@ namespace DVLD_project
         public event Action<int> OnSaveClick;
 
         public event Action<int> OnCloseClick;
+
+        private readonly PeopleClientService _peopleclientService;
 
         protected virtual void CloseClicked(int PersonID)
         {
@@ -58,6 +61,7 @@ namespace DVLD_project
         {                    
             InitializeComponent(); 
              _countryClientService = new CountryClientService();
+            _peopleclientService = new PeopleClientService();
             dateofbirthPicker.MaxDate = DateTime.Now.AddYears(-18);
         }
         
@@ -89,19 +93,19 @@ namespace DVLD_project
             }
         }
 
-        public void GetID(int ID)
+        public async Task GetID(int ID)
         {
             CurrentID = ID;
-            clsPeople Person = clsPeople.FindPerson(CurrentID);
+            var Person = await _peopleclientService.FindPersonAsync(CurrentID);
             txtAddress.Text = Person.Address;
             txtFirstName.Text = Person.FirstName;
             txtLastName.Text = Person.LastName;
             txtEmail.Text = Person.Email;
             txtSecondName.Text = Person.SecondName;
             txtThirdName.Text = Person.ThirdName;
-            txtNationalNo.Text = Person.NationalNum;
+            txtNationalNo.Text = Person.NationalNo;
             dateofbirthPicker.Value = Person.DateOfBirth;
-            cbCountry.SelectedIndex = Person.CountryId - 1;
+            cbCountry.SelectedIndex = Person.NationalityCountryId - 1;
             txtPhone.Text = Person.Phone;
             if(Person.ImagePath != "")
             {
@@ -114,7 +118,7 @@ namespace DVLD_project
             {
                 PersonPicture.ImageLocation = null;
             }
-            if (Person.Gender == 0)
+            if (Person.Gendor == 0)
             {
                 rbMale.Checked = true;
                 CurrentImageState = "Male";
@@ -126,39 +130,38 @@ namespace DVLD_project
             }
         }
 
-        private void AddPerson()
+        private async Task AddPerson()
         {
-            clsPeople Person = new clsPeople();
-            Person.NationalNum = txtNationalNo.Text;
-            Person.FirstName = txtFirstName.Text;
-            Person.SecondName = txtSecondName.Text;
-            Person.ThirdName = txtThirdName.Text;
-            Person.LastName = txtLastName.Text;
-            Person.Email = txtEmail.Text;
-            Person.Phone = txtPhone.Text;
-            Person.Address = txtAddress.Text;
-            Person.DateOfBirth = dateofbirthPicker.Value;
-            Person.CountryId = cbCountry.SelectedIndex + 1;
-            Person.Gender = rbMale.Checked ? 0 : 1;
+            int Gender = rbMale.Checked ? 0 : 1;
+            string newpath = "";
             if (PictureExists)
             {
-                string newpath = MoveImage(PersonPicture.ImageLocation);
-                Person.ImagePath = newpath;
-                
+                newpath = MoveImage(PersonPicture.ImageLocation);             
             }
-            else
+            var Person = await _peopleclientService.AddPersonAsync(new PersonDTO
             {
-                Person.ImagePath = "";
-            }
-            Person.Save();
-            CurrentID = Person.Id;
-            SaveClicked(Person.Id);
+                NationalNo = txtNationalNo.Text,
+                FirstName = txtFirstName.Text,
+                SecondName = txtSecondName.Text,
+                ThirdName = txtThirdName.Text,
+                LastName = txtLastName.Text,
+                Email = txtEmail.Text,
+                Phone = txtPhone.Text,
+                Address = txtAddress.Text,
+                DateOfBirth = dateofbirthPicker.Value,
+                NationalityCountryId = cbCountry.SelectedIndex - 1,
+                Gendor = (Byte)Gender,
+                ImagePath = newpath
+            });
+            
+            CurrentID = Person.PersonId;
+            SaveClicked(Person.PersonId);
         }
 
-        private void UpdatePerson()
+        private async Task UpdatePerson()
         {
-            clsPeople Person = clsPeople.FindPerson(CurrentID);
-            Person.NationalNum = txtNationalNo.Text;
+            var Person = await _peopleclientService.FindPersonAsync(CurrentID);
+            Person.NationalNo = txtNationalNo.Text;
             Person.FirstName = txtFirstName.Text;
             Person.SecondName = txtSecondName.Text;
             Person.ThirdName = txtThirdName.Text;
@@ -167,9 +170,10 @@ namespace DVLD_project
             Person.Phone = txtPhone.Text;
             Person.Address = txtAddress.Text;
             Person.DateOfBirth = dateofbirthPicker.Value;
-            Person.CountryId = cbCountry.SelectedIndex + 1;
-            Person.Gender = rbMale.Checked ? 0 : 1;
-            
+            Person.NationalityCountryId = cbCountry.SelectedIndex + 1;
+            int Gender = rbMale.Checked ? 0 : 1;
+            Person.Gendor = (Byte)Gender;
+
             if (PictureExists)
             {
                 if(PersonPicture.ImageLocation!= Person.ImagePath)
@@ -177,8 +181,6 @@ namespace DVLD_project
                         string newpath = MoveImage((PersonPicture.ImageLocation));
                         Person.ImagePath = newpath;
                     }
-                
-
             }
             else
             {
@@ -189,7 +191,7 @@ namespace DVLD_project
                 }         
                 
             }
-            Person.Save();
+            await _peopleclientService.UpdatePersonAsync(Person);
             SaveClicked(-1);
 
         }
@@ -208,7 +210,7 @@ namespace DVLD_project
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
 
             if (ThereIsNull())
@@ -229,11 +231,11 @@ namespace DVLD_project
             }
             if(_mode == 0)
             {
-                AddPerson();
+                await AddPerson();
             }
             else
             {
-                UpdatePerson();
+                await UpdatePerson();
             }
         }
 
@@ -317,7 +319,7 @@ namespace DVLD_project
             }
         }
 
-        private void txtNationalNo_Validating(object sender, CancelEventArgs e)
+        private async void txtNationalNo_Validating(object sender, CancelEventArgs e)
         {
             if (string.IsNullOrEmpty(txtNationalNo.Text))
             {
@@ -325,7 +327,7 @@ namespace DVLD_project
                 txtNationalNo.Focus();
                 errorProvider1.SetError(txtNationalNo, "This field is required");
             }
-            else if (clsPeople.NationalNumExists(txtNationalNo.Text))
+            else if (await _peopleclientService.NationalNoExistsAsync(txtNationalNo.Text))
             {
                 e.Cancel = true;
                 txtNationalNo.Focus();

@@ -18,10 +18,12 @@ namespace DVLD_project
     public partial class frmManageDetainedLicenses : Form
     {
         private readonly DetainedLicenseClientService _detainedLicenseClientService;
+        private readonly PeopleClientService _peopleClientService;
         public frmManageDetainedLicenses()
         {
             InitializeComponent();
             _detainedLicenseClientService = new DetainedLicenseClientService();
+            _peopleClientService = new PeopleClientService();
         }
         private async Task RefreshDataGrid()
         {
@@ -107,11 +109,11 @@ namespace DVLD_project
             }
         }
 
-        private void showPersonDetailsToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void showPersonDetailsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string NationalNo = Detainsdatagrid.SelectedRows[0].Cells["N.No"].Value.ToString();          
-            clsPeople Person = clsPeople.FindPerson(NationalNo);
-            frmPersonDetails frm = new frmPersonDetails(Person.Id);
+            var Person = await _peopleClientService.FindPersonByNationalNoAsync(NationalNo);
+            frmPersonDetails frm = new frmPersonDetails(Person.PersonId);
             frm.ShowDialog();
         }
 

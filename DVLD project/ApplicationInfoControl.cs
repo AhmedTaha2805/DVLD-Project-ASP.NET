@@ -24,6 +24,7 @@ namespace DVLD_project
         private readonly ApplicationClientService _applicationClientService;
         private readonly LocalDrivingLicenseApplicationClientService _localDrivingLicenseApplicationClientService;
         private readonly UserClientService _userClientService;
+        private readonly PeopleClientService _peopleClientService;
         public ApplicationInfoControl()
         {
             InitializeComponent();  
@@ -31,10 +32,11 @@ namespace DVLD_project
             _licenseClassClientService = new LicenseClassClientService();
             _applicationClientService = new ApplicationClientService();
             _userClientService = new UserClientService();
+            _peopleClientService = new PeopleClientService();
             _localDrivingLicenseApplicationClientService = new LocalDrivingLicenseApplicationClientService();
         }
 
-        public async void LoadAppInfo(int LDLAppID)
+        public async Task LoadAppInfo(int LDLAppID)
         {
             lbLoading.Visible = true;
             var licenseApplication = await _localDrivingLicenseApplicationClientService.FindApplicationAsync(LDLAppID);
@@ -46,7 +48,7 @@ namespace DVLD_project
             lbStatus.Text = _applicationClientService.GetStatus(App.ApplicationStatus);
             lbFees.Text = App.PaidFees.ToString();
             lbType.Text = await _applicationtypeClientService.GetApplicationTypeTitleById(App.ApplicationTypeId);
-            clsPeople person = clsPeople.FindPerson(App.ApplicantPersonId);
+            var person = await _peopleClientService.FindPersonAsync(App.ApplicantPersonId);
             lbApplicantName.Text = $"{person.FirstName} {person.SecondName} {person.ThirdName} {person.LastName} ";
             lbDate.Text = App.ApplicationDate.ToString();
             lbStatusDate.Text = App.LastStatusDate.ToString();
