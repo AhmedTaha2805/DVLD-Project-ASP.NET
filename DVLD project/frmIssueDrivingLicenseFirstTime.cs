@@ -29,13 +29,13 @@ namespace DVLD_project
         public frmIssueDrivingLicenseFirstTime(int LDLAppID)
         {
             InitializeComponent();
-            _licenseClassClientService = new LicenseClassClientService();
+            _licenseClientService = new LicenseClientService();
             _licenseClassClientService = new LicenseClassClientService();
             _applicationClientService = new ApplicationClientService();
             _driverClientService = new DriverClientService();
             _localDrivingLicenseApplicationClientService = new LocalDrivingLicenseApplicationClientService();
             CLDLAppID = LDLAppID;
-            applicationInfoControl1.LoadAppInfo(LDLAppID);
+            
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -45,33 +45,45 @@ namespace DVLD_project
 
         private async void btnSave_Click(object sender, EventArgs e)
         {
-            var LApp = await _localDrivingLicenseApplicationClientService.FindApplicationAsync(CLDLAppID);
-            var App = await _applicationClientService.FindApplication(LApp.ApplicationId);                      
-            var driver = await _driverClientService.AddDriverAsync(new DriverDTO
+            try
             {
-                PersonId = App.ApplicantPersonId,
-                CreatedByUserId = CurrentUser.user.UserId,
-                CreatedDate = DateTime.Now
-            });
-            Byte length = await _licenseClassClientService.GetLicenseClassValidityLengthById(LApp.LicenseClassId);
-            await _licenseClientService.AddLicenseAsync(new LicenseDTO
+                var LApp = await _localDrivingLicenseApplicationClientService.FindApplicationAsync(CLDLAppID);
+                var App = await _applicationClientService.FindApplication(LApp.ApplicationId);
+                var driver = await _driverClientService.AddDriverAsync(new DriverDTO
+                {
+                    PersonId = App.ApplicantPersonId,
+                    CreatedByUserId = CurrentUser.user.UserId,
+                    CreatedDate = DateTime.Now
+                });
+                Byte length = await _licenseClassClientService.GetLicenseClassValidityLengthById(LApp.LicenseClassId);
+                var license = await _licenseClientService.AddLicenseAsync(new LicenseDTO
+                {
+                    ApplicationId = LApp.ApplicationId,
+                    LicenseClass = LApp.LicenseClassId,
+                    IssueDate = DateTime.Now,
+                    ExpirationDate = DateTime.Now.AddYears(length),
+                    Notes = txtnotes.Text,
+                    PaidFees = await _licenseClassClientService.GetLicenseClassFeesById(LApp.LicenseClassId),
+                    IsActive = true,
+                    IssueReason = 1,
+                    CreatedByUserId = CurrentUser.user.UserId,
+                    DriverId = driver.DriverId,
+                });
+                App.LastStatusDate = DateTime.Now;
+                App.ApplicationStatus = 3;
+                await _applicationClientService.UpdateApplication(App);
+
+                MessageBox.Show("License Added Successfully", "Congratulations", MessageBoxButtons.OK);
+            }
+            catch(Exception ex)
             {
-                ApplicationId = LApp.ApplicationId,
-                LicenseClass = LApp.LicenseClassId,
-                IssueDate = DateTime.Now,
-                ExpirationDate = DateTime.Now.AddYears(length),
-                Notes = txtnotes.Text,
-                PaidFees = await _licenseClassClientService.GetLicenseClassFeesById(LApp.LicenseClassId),
-                IsActive = true,
-                IssueReason = 1,
-                CreatedByUserId = CurrentUser.user.UserId,
-                DriverId = driver.DriverId,
-            });
-            App.LastStatusDate = DateTime.Now;
-            App.ApplicationStatus = 3;
-            await _applicationClientService.UpdateApplication(App);
-            
-            MessageBox.Show("License Added Successfully","Congratulations",MessageBoxButtons.OK);
+
+            }
+        }
+
+        private async void frmIssueDrivingLicenseFirstTime_Load(object sender, EventArgs e)
+        {
+            await applicationInfoControl1.LoadAppInfo(CLDLAppID);
         }
     }
 }

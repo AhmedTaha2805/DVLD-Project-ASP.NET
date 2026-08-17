@@ -97,11 +97,12 @@ namespace DVLD_project
             }
         }
 
-        private void btnAddApp_Click(object sender, EventArgs e)
+        private async void btnAddApp_Click(object sender, EventArgs e)
         {
             frmInternationLicenseApplication frm = new frmInternationLicenseApplication();
             frm.ShowDialog();
-            RefreshDataGrid();
+            await RefreshDataGrid();
+
         }
 
         private void IntAppsdatagrid_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)

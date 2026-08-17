@@ -67,7 +67,7 @@ namespace DVLD_project
             {
 
                 var User = await _userClientService.FindUserAsync(UserID);
-                personDetailsWithFilter1.LoadPersonInfo(User.PersonId);
+                await personDetailsWithFilter1.LoadPersonInfo(User.PersonId);
                 lbUserID.Text = User.UserId.ToString();
                 txtUsername.Text = User.UserName;
                 txtPassword.Text = User.Password;

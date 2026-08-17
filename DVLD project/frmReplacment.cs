@@ -46,7 +46,7 @@ namespace DVLD_project
         {
             lbOldLicenseID.Text = LicenseID.ToString();
             _LicenseID = LicenseID;
-            var License = await _licenseClientService.FindLicenseByLicenseIDAsync(LicenseID);                             
+                                        
             if (! await _licenseClientService.IsLicenseActiveAsync(LicenseID))
             {
                 btnSave.Enabled = false;
@@ -75,10 +75,11 @@ namespace DVLD_project
             {
                 return;
             }
-            
-            var OldLicense = await _licenseClientService.FindLicenseByLicenseIDAsync(int.Parse(lbOldLicenseID.Text));
-            await _licenseClientService.DeActivateLicenseAsync(_LicenseID);
-            var Driver = await _driverClientService.FindDriverByIDAsync(OldLicense.DriverId);
+
+            var OldLicenseTask = _licenseClientService.FindLicenseByLicenseIDAsync(int.Parse(lbOldLicenseID.Text));
+            var DeActivateTask = _licenseClientService.DeActivateLicenseAsync(_LicenseID);
+            await Task.WhenAll(OldLicenseTask, DeActivateTask);
+            var Driver = await _driverClientService.FindDriverByIDAsync(OldLicenseTask.Result.DriverId);
             var App = await _applicationClientService.AddApplication(new ApplicationDTO
             {
                 ApplicantPersonId = Driver.PersonId,
@@ -95,11 +96,11 @@ namespace DVLD_project
             {
                 ApplicationId = App.ApplicationId,
                 DriverId = Driver.DriverId,
-                LicenseClass = OldLicense.LicenseClass,
+                LicenseClass = OldLicenseTask.Result.LicenseClass,
                 IssueDate = DateTime.Now,
-                ExpirationDate = DateTime.Now.AddYears(await _licenseClassClientService.GetLicenseClassValidityLengthById(OldLicense.LicenseClass)),
+                ExpirationDate = DateTime.Now.AddYears(await _licenseClassClientService.GetLicenseClassValidityLengthById(OldLicenseTask.Result.LicenseClass)),
                 Notes = "",
-                PaidFees = await _licenseClassClientService.GetLicenseClassFeesById(OldLicense.LicenseClass),
+                PaidFees = await _licenseClassClientService.GetLicenseClassFeesById(OldLicenseTask.Result.LicenseClass),
                 IsActive = true,
                 IssueReason = (Byte)(IsDamaged ? 3 : 4),
                 CreatedByUserId = CurrentUser.user.UserId

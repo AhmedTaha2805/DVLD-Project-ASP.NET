@@ -27,13 +27,13 @@ namespace DVLD_project
         }
         private async Task RefreshDataGrid()
         {
-            Detainsdatagrid.DataSource = await _detainedLicenseClientService.GetAllAsync();
+            Detainsdatagrid.DataSource = await _detainedLicenseClientService.GetAllAsDataTableAsync();
         }
 
         private async void frmManageDetainedLicenses_Load(object sender, EventArgs e)
         {
             await RefreshDataGrid();
-            lbRecord.Text = (Detainsdatagrid.RowCount - 1).ToString();
+            lbRecord.Text = (Detainsdatagrid.RowCount).ToString();
         }
 
         private void btnClose_Click(object sender, EventArgs e)

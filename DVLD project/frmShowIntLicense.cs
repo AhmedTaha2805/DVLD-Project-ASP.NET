@@ -12,15 +12,21 @@ namespace DVLD_project
 {
     public partial class frmShowIntLicense : Form
     {
+        int _LicenseID;
         public frmShowIntLicense(int LicenseID)
         {
             InitializeComponent();
-            intLicenseInfoControl1.LoadLicenseInfo(LicenseID);
+            _LicenseID = LicenseID;
         }
 
         private void btnClose_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private async void frmShowIntLicense_Load(object sender, EventArgs e)
+        {
+            await intLicenseInfoControl1.LoadLicenseInfo(_LicenseID);
         }
     }
 }

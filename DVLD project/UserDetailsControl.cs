@@ -25,7 +25,7 @@ namespace DVLD_project
         public async Task LoadUserInfo(int id)
         {
             var User = await _userClientService.FindUserAsync(id);
-            personDetailsControl1.LoadPersonInfo(User.PersonId);
+            await personDetailsControl1.LoadPersonInfo(User.PersonId);
             lbUserID.Text = id.ToString();
             lbUserName.Text = User.UserName;
             lbIsActive.Text = User.IsActive ? "yes" : "no";

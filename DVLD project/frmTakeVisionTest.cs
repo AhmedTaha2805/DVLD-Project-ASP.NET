@@ -29,6 +29,7 @@ namespace DVLD_project
         private readonly TestAppointmentClientService _testAppointmentClientService;
         private readonly ApplicationClientService _applicationClientService;
         private readonly LocalDrivingLicenseApplicationClientService _localDrivingLicenseApplicationClientService;
+        private readonly PeopleClientService _peopleClientService;
         public frmTakeVisionTest(int LDLAppID,int AppointmentID , string Date)
         {
             InitializeComponent();
@@ -37,6 +38,7 @@ namespace DVLD_project
             _testClient = new TestClientService();
             _testAppointmentClientService = new TestAppointmentClientService();
             _localDrivingLicenseApplicationClientService = new LocalDrivingLicenseApplicationClientService();
+            _peopleClientService = new PeopleClientService();
             lbDate.Text = Date;
             AppointID = AppointmentID;
             _LDLAppID = LDLAppID;
@@ -70,12 +72,18 @@ namespace DVLD_project
         private async void frmTakeVisionTest_Load(object sender, EventArgs e)
         {
             var LDLApp = await _localDrivingLicenseApplicationClientService.FindApplicationAsync(_LDLAppID);
-            var App = await _applicationClientService.FindApplication(LDLApp.ApplicationId);
+            var AppTask = _applicationClientService.FindApplication(LDLApp.ApplicationId);
+            var ClassTask = _licenseClassClientService.GetLicenseClassNameById(LDLApp.LicenseClassId);
+            await Task.WhenAll(AppTask, ClassTask);
+            var App = AppTask.Result;
             lbAppID.Text = _LDLAppID.ToString();
-            lbClass.Text = await _licenseClassClientService.GetLicenseClassNameById(LDLApp.LicenseClassId);
-            clsPeople person = clsPeople.FindPerson(App.ApplicantPersonId);
-            lbName.Text = person.FullName();
-            lbTrial.Text = (await _testAppointmentClientService.GetNumberOfTrials(LDLApp.LocalDrivingLicenseApplicationId, 1)).ToString();
+            lbClass.Text = ClassTask.Result.ToString();
+            var persontask = _peopleClientService.FindPersonAsync(App.ApplicantPersonId);
+            var TrialTask = _testAppointmentClientService.GetNumberOfTrials(LDLApp.LocalDrivingLicenseApplicationId, 1);
+            await Task.WhenAll(AppTask, TrialTask);
+            var person = persontask.Result;
+            lbName.Text = $"{person.FirstName} {person.SecondName} {person.ThirdName} {person.LastName}";
+            lbTrial.Text = TrialTask.Result.ToString();
             lbFees.Text = "10";
         }
     }

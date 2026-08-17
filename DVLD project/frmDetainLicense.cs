@@ -45,7 +45,6 @@ namespace DVLD_project
         {
             lbLicenseID.Text = LicenseID.ToString();
             _LicenseID = LicenseID;
-            var License = await _licenseClientService.FindLicenseByLicenseIDAsync(LicenseID);
             
             if (await _licenseClientService.IsExpiredAsync(LicenseID, DateTime.Now))
             {
@@ -132,14 +131,16 @@ namespace DVLD_project
             {
                 return;
             }
-            var DetainedLicense = await _detainedLicenseClientService.DetainAsync(new DetainedLicenseDTO
+            var DetainedLicTask = _detainedLicenseClientService.DetainAsync(new DetainedLicenseDTO
             {
                 LicenseId = _LicenseID,
                 DetainDate = DateTime.Now,
                 FineFees = 150,
                 CreatedByUserId = CurrentUser.user.UserId,
             });
-            await _licenseClientService.DeActivateLicenseAsync(_LicenseID);
+            var DeActivateTask = _licenseClientService.DeActivateLicenseAsync(_LicenseID);
+            await Task.WhenAll(DetainedLicTask,DeActivateTask);
+            var DetainedLicense = DetainedLicTask.Result;
         
             lbDetainID.Text = DetainedLicense.DetainId.ToString();
             searchLicenseControl1.DisableFilter();

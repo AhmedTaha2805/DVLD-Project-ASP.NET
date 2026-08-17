@@ -12,10 +12,16 @@ namespace DVLD_project
 {
     public partial class frmShowApplicationDetails : Form
     {
+        int _id;
         public frmShowApplicationDetails(int id)
         {
             InitializeComponent();
-            applicationInfoControl1.LoadAppInfo(id);
+            _id = id;
+        }
+
+        private async void frmShowApplicationDetails_Load(object sender, EventArgs e)
+        {
+            await applicationInfoControl1.LoadAppInfo(_id);
         }
     }
 }

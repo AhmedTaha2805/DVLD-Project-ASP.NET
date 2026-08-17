@@ -23,6 +23,7 @@ namespace DVLD_project
         private readonly ApplicationClientService _applicationClientService;
         private readonly LicenseClientService _licenseClientService;
         private readonly DriverClientService _driverClientService;
+        private readonly PeopleClientService _peopleClientService;
         public LicenseInfoControl()
         {
             InitializeComponent();
@@ -30,17 +31,18 @@ namespace DVLD_project
             _applicationClientService = new ApplicationClientService();
             _licenseClassClientService = new LicenseClassClientService();
             _driverClientService = new DriverClientService();
+            _peopleClientService = new PeopleClientService();
         }
 
-        public async void LoadLicenseInfo(int LicenseID)
+        public async Task LoadLicenseInfo(int LicenseID)
         {
             var license = await _licenseClientService.FindLicenseByLicenseIDAsync(LicenseID);
             var driver = await _driverClientService.FindDriverByIDAsync(license.DriverId);
-            clsPeople person = clsPeople.FindPerson(driver.PersonId);
+            var person = await _peopleClientService.FindPersonAsync(driver.PersonId);
             lbClass.Text = await _licenseClassClientService.GetLicenseClassNameById(license.LicenseClass);
-            lbName.Text = person.FullName();
-            lbNationalNo.Text = person.NationalNum;
-            if (person.Gender == 0)
+            lbName.Text = $"{person.FirstName} {person.SecondName} {person.ThirdName} {person.LastName}";
+            lbNationalNo.Text = person.NationalNo;
+            if (person.Gendor == 0)
             {
                 lbGender.Text = "Male";
             }
@@ -74,10 +76,10 @@ namespace DVLD_project
             }
             lbClass.Text = await _licenseClassClientService.GetLicenseClassNameById(license.LicenseClass);
             var App = await _applicationClientService.FindApplication(license.ApplicationId);
-            clsPeople person = clsPeople.FindPerson(App.ApplicantPersonId);
-            lbName.Text = person.FullName();
-            lbNationalNo.Text = person.NationalNum;
-            if (person.Gender == 0)
+            var person = await _peopleClientService.FindPersonAsync(App.ApplicantPersonId);
+            lbName.Text = $"{person.FirstName} {person.SecondName} {person.ThirdName} {person.LastName}";
+            lbNationalNo.Text = person.NationalNo;
+            if (person.Gendor == 0)
             {
                 lbGender.Text = "Male";
             }

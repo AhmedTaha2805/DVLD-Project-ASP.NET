@@ -118,7 +118,7 @@ namespace DVLD_project
                 lbUsername.Text = user.UserName;
                 lbAppID.Text = LAppID.ToString();
                 cbLicenseClass.SelectedIndex = LApp.LicenseClassId - 1;
-                personDetailsWithFilter1.LoadPersonInfo(App.ApplicantPersonId);
+                await personDetailsWithFilter1.LoadPersonInfo(App.ApplicantPersonId);
             }
             var LicenseClasses = await _licenseClassClientService.GetAllLicenseClasses();
             foreach (var LicenseClass in LicenseClasses)

@@ -23,11 +23,11 @@ namespace DVLD_WebApi.Controllers
 
                 return CreatedAtAction(
                     nameof(FindByDetainId),
-                    new { dto.DetainId },
+                    new { id = dto.DetainId },
                     DetainedLicenseDTO);
             }
 
-            [HttpPut("{id}/release")]
+            [HttpPost("{id}/release")]
             public async Task<IActionResult> Release(
                 int id,
                 DetainedLicenseDTO dto)

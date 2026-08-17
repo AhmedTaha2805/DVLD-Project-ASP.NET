@@ -116,8 +116,7 @@ namespace DVLD_project.Services
 
         public async Task<bool> IsExpiredAsync(int licenseID, DateTime date)
         {
-            var response = await _httpClient.GetAsync(
-                $"{licenseID}/Expired?date={date:O}");
+            var response = await _httpClient.GetAsync($"{licenseID}/Expired?date={date:yyyy-MM-ddTHH:mm:ss}");
 
             response.EnsureSuccessStatusCode();
 

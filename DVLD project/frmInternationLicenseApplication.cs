@@ -132,8 +132,6 @@ namespace DVLD_project
                 btnSave.Enabled = true;
                 lnkShowLicenseHistory.Enabled = true;
             }
-
-
         }
 
         private async void lnkShowLicenseHistory_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

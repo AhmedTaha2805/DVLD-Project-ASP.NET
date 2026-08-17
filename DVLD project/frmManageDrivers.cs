@@ -35,7 +35,7 @@ namespace DVLD_project
         private async void frmManageDrivers_Load(object sender, EventArgs e)
         {
             await RefreshDataGrid();
-            lbRecord.Text = (Driversdatagrid.RowCount - 1).ToString();
+            lbRecord.Text = (Driversdatagrid.RowCount).ToString();
         }
 
         private void txtFilters_KeyPress(object sender, KeyPressEventArgs e)

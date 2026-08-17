@@ -46,7 +46,7 @@ namespace DVLD_WebApi.Services
         {
             var IsFound = await _context.Tests
                 //.Include(t => t.TestAppointment)
-                .Where(t => t.TestAppointment.LocalDrivingLicenseApplicationId == LocalDrivingLicenseAppId && t.TestResult == true)
+                .Where(t => t.TestAppointment.LocalDrivingLicenseApplicationId == LocalDrivingLicenseAppId && t.TestAppointment.TestTypeId == testId  && t.TestResult == true)
                 .AnyAsync();
             return IsFound;
         }
@@ -54,9 +54,9 @@ namespace DVLD_WebApi.Services
         public async Task<bool> PersonFailedThisTestBefore(int LocalDrivingLicenseAppId, int testId)
         {
             var IsFound = await _context.Tests
-                //.Include(t => t.TestAppointment)
-                .Where(t => t.TestAppointment.LocalDrivingLicenseApplicationId == LocalDrivingLicenseAppId && t.TestResult == false)
-                .AnyAsync();
+                 //.Include(t => t.TestAppointment)
+                 .Where(t => t.TestAppointment.LocalDrivingLicenseApplicationId == LocalDrivingLicenseAppId && t.TestAppointment.TestTypeId == testId && t.TestResult == false)
+                 .AnyAsync();
             return IsFound;
         }
     }

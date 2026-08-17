@@ -59,6 +59,7 @@
             this.Controls.Add(this.applicationInfoControl1);
             this.Name = "frmShowApplicationDetails";
             this.Text = "Show Application Details";
+            this.Load += new System.EventHandler(this.frmShowApplicationDetails_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

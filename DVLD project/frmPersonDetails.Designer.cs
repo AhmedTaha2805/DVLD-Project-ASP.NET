@@ -77,7 +77,7 @@
             this.Controls.Add(this.label1);
             this.Name = "frmPersonDetails";
             this.Text = "Person Details";
-            
+            this.Load += new System.EventHandler(this.frmPersonDetails_Load);
             this.ResumeLayout(false);
 
         }

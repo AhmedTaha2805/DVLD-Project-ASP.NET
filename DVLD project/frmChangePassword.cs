@@ -23,7 +23,7 @@ namespace DVLD_project
             _userClientService = new UserClientService();   
         }
 
-        private async void txtCurrentPass_Validating(object sender, CancelEventArgs e)
+        private void txtCurrentPass_Validating(object sender, CancelEventArgs e)
         {
             if (txtCurrentPass.Text!=CurrentUser.user.Password)
             {

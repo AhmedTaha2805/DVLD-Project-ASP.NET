@@ -25,7 +25,6 @@ namespace DVLD_project
             _testClient = new TestClientService();
             _testAppointmentClient = new TestAppointmentClientService();
             CLDLAppID = LDLAppID;
-            applicationInfoControl1.LoadAppInfo(LDLAppID);
         }
 
         private async Task RefreshDataGrid(int AppID)
@@ -35,7 +34,9 @@ namespace DVLD_project
 
         private async void frmScheduleWrittenTest_Load(object sender, EventArgs e)
         {
-            await RefreshDataGrid(CLDLAppID);
+            var AppTask = applicationInfoControl1.LoadAppInfo(CLDLAppID);
+            var RefreshTask = RefreshDataGrid(CLDLAppID);
+            await Task.WhenAll(AppTask, RefreshTask);
             lbRecord.Text = Appointmentsdatagrid.RowCount.ToString();
         }
 
@@ -62,7 +63,7 @@ namespace DVLD_project
                 frm.ShowDialog();
             }
             
-            RefreshDataGrid(CLDLAppID);
+            await RefreshDataGrid(CLDLAppID);
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -81,32 +82,33 @@ namespace DVLD_project
             }
         }
 
-        private void takeTestToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void takeTestToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Convert.ToBoolean(Appointmentsdatagrid.SelectedRows[0].Cells["Is Locked"].Value))
+            if (Convert.ToBoolean(Appointmentsdatagrid.SelectedRows[0].Cells["IsLocked"].Value))
             {
                 MessageBox.Show("This Appointment Is Locked", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            int id = int.Parse(Appointmentsdatagrid.SelectedRows[0].Cells["Appointment ID"].Value.ToString());
-            string date = Appointmentsdatagrid.SelectedRows[0].Cells["Appointment Date"].Value.ToString();
+            int id = int.Parse(Appointmentsdatagrid.SelectedRows[0].Cells["TestAppointmentID"].Value.ToString());
+            string date = Appointmentsdatagrid.SelectedRows[0].Cells["AppointmentDate"].Value.ToString();
             frmTakeWrittenTest frm = new frmTakeWrittenTest(CLDLAppID, id, date);
             frm.ShowDialog();
-            RefreshDataGrid(CLDLAppID);
-            applicationInfoControl1.LoadAppInfo(CLDLAppID);
+            var AppTask = applicationInfoControl1.LoadAppInfo(CLDLAppID);
+            var RefreshTask = RefreshDataGrid(CLDLAppID);
+            await Task.WhenAll(AppTask, RefreshTask);
         }
 
-        private void editToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void editToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int id = int.Parse(Appointmentsdatagrid.SelectedRows[0].Cells["Appointment ID"].Value.ToString());
-            if(Convert.ToBoolean( Appointmentsdatagrid.SelectedRows[0].Cells["Is Locked"].Value))
+            int id = int.Parse(Appointmentsdatagrid.SelectedRows[0].Cells["TestAppointmentID"].Value.ToString());
+            if(Convert.ToBoolean( Appointmentsdatagrid.SelectedRows[0].Cells["IsLocked"].Value))
             {
                 MessageBox.Show("You Cannot edit a locked Appointment", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             frmWrittenTest frm = new frmWrittenTest(CLDLAppID, id);
             frm.ShowDialog();
-            RefreshDataGrid(CLDLAppID);
+            await RefreshDataGrid(CLDLAppID);
             
             
         }

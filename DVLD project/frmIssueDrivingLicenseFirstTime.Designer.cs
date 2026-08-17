@@ -103,6 +103,7 @@
             this.Controls.Add(this.applicationInfoControl1);
             this.Name = "frmIssueDrivingLicenseFirstTime";
             this.Text = "Issue Driving License for the First Time";
+            this.Load += new System.EventHandler(this.frmIssueDrivingLicenseFirstTime_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

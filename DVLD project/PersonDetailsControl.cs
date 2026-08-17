@@ -18,16 +18,18 @@ namespace DVLD_project
     {
         int Currentid = -1;
         private  CountryClientService _countryClientService;
+        private readonly PeopleClientService _peopleClientService;
         public PersonDetailsControl()
         {
             InitializeComponent();
             _countryClientService = new CountryClientService();
+            _peopleClientService = new PeopleClientService();
         }
 
         public async Task LoadPersonInfo(int id)
         {
             
-            clsPeople Person = clsPeople.FindPerson(id);
+            var Person = await _peopleClientService.FindPersonAsync(id);
             if (Person == null)
             {
                 MessageBox.Show("person Not Found", "Error",MessageBoxButtons.OK);
@@ -38,18 +40,18 @@ namespace DVLD_project
             lnkEditPersonInfo.Enabled = true;
             lbPersonID.Text = id.ToString();
             lbName.Text = $"{Person.FirstName} {Person.SecondName} {Person.ThirdName} {Person.LastName}";
-            lbNationalNo.Text = Person.NationalNum;
+            lbNationalNo.Text = Person.NationalNo;
             lbPhone.Text = Person.Phone;
             lbEmail.Text = Person.Email;
             lbAddress.Text = Person.Address;
             lbDateOfBirth.Text = Person.DateOfBirth.ToString();
-            lbGender.Text = Person.Gender == 0 ? "Male" : "Female";
-            lbCountry.Text = await _countryClientService.GetCountryName(Person.CountryId);
+            lbGender.Text = Person.Gendor == 0 ? "Male" : "Female";
+            lbCountry.Text = await _countryClientService.GetCountryName(Person.NationalityCountryId);
             if (!(Person.ImagePath == ""))
             {
                 PersonPicture.ImageLocation = Person.ImagePath;                 
             }
-            else if (Person.Gender == 0)
+            else if (Person.Gendor == 0)
             {
                 PersonPicture.Image = Properties.Resources.Male_512;
             }
@@ -63,7 +65,7 @@ namespace DVLD_project
         public async Task LoadPersonInfo(string NationalNo)
         {
             
-            clsPeople Person = clsPeople.FindPerson(NationalNo);
+            var Person = await _peopleClientService.FindPersonByNationalNoAsync(NationalNo);
             if (Person == null)
             {
                 MessageBox.Show("person Not Found", "Error", MessageBoxButtons.OK);
@@ -71,21 +73,21 @@ namespace DVLD_project
 
             }
             lnkEditPersonInfo.Enabled = true;
-            Currentid = Person.Id;           
+            Currentid = Person.PersonId;           
             lbPersonID.Text = Currentid.ToString();
             lbName.Text = $"{Person.FirstName} {Person.SecondName} {Person.ThirdName} {Person.LastName}";
-            lbNationalNo.Text = Person.NationalNum;
+            lbNationalNo.Text = Person.NationalNo;
             lbPhone.Text = Person.Phone;
             lbEmail.Text = Person.Email;
             lbAddress.Text = Person.Address;
             lbDateOfBirth.Text = Person.DateOfBirth.ToString();
-            lbGender.Text = Person.Gender == 0 ? "Male" : "Female";
-            lbCountry.Text = await _countryClientService.GetCountryName(Person.CountryId);
+            lbGender.Text = Person.Gendor == 0 ? "Male" : "Female";
+            lbCountry.Text = await _countryClientService.GetCountryName(Person.NationalityCountryId);
             if (!(Person.ImagePath == ""))
             {
                 PersonPicture.ImageLocation = Person.ImagePath;
             }
-            else if (Person.Gender == 0)
+            else if (Person.Gendor == 0)
             {
                 PersonPicture.Image = Properties.Resources.Male_512;
             }

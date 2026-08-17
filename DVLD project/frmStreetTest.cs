@@ -30,6 +30,7 @@ namespace DVLD_project
         private readonly TestAppointmentClientService _testAppointmentClientService;
         private readonly ApplicationClientService _applicationClientService;
         private readonly LocalDrivingLicenseApplicationClientService _localDrivingLicenseApplicationClientService;
+        private readonly PeopleClientService _peopleClientService;
         public frmStreetTest(int id,int Appointid = -1, bool Retake = false, int RTAppID = -1)
         {
             InitializeComponent(); 
@@ -37,6 +38,7 @@ namespace DVLD_project
             _licenseClassClientService = new LicenseClassClientService();
             _testAppointmentClientService = new TestAppointmentClientService();
             _localDrivingLicenseApplicationClientService = new LocalDrivingLicenseApplicationClientService();
+            _peopleClientService = new PeopleClientService();
             AppointID = Appointid;
             _AppID = id;
             _Retake = Retake;
@@ -49,10 +51,13 @@ namespace DVLD_project
             var App = await _applicationClientService.FindApplication(LDLApp.ApplicationId);
             lbAppID.Text = _AppID.ToString();
             lbClass.Text = await _licenseClassClientService.GetLicenseClassNameById(LDLApp.LicenseClassId);
-            clsPeople person = clsPeople.FindPerson(App.ApplicantPersonId);
-            Person_ID = person.Id;
-            lbName.Text = person.FullName();
-            lbTrial.Text = (await _testAppointmentClientService.GetNumberOfTrials(LDLApp.LocalDrivingLicenseApplicationId, 3)).ToString();
+            var persontask =  _peopleClientService.FindPersonAsync(App.ApplicantPersonId);
+            var TrialTask = _testAppointmentClientService.GetNumberOfTrials(LDLApp.LocalDrivingLicenseApplicationId, 3);
+            await Task.WhenAll(persontask, TrialTask);
+            var person = persontask.Result;
+            Person_ID = person.PersonId;
+            lbName.Text =  $"{person.FirstName} {person.SecondName} {person.ThirdName} {person.LastName}";
+            lbTrial.Text = TrialTask.Result.ToString();
             lbFees.Text = "30";
             if (_Retake)
             {

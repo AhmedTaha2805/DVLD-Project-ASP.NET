@@ -36,7 +36,7 @@ namespace DVLD_project
 
         private async Task RefreshDataGrid()
         {
-            LocalAppsdatagrid.DataSource = await _localDrivingLicenseApplicationClientService.GetAllLocalAppsAsync();
+            LocalAppsdatagrid.DataSource = await _localDrivingLicenseApplicationClientService.GetAllLocalAppsAsDataTableAsync();
         }
 
         private void txtFilters_KeyPress(object sender, KeyPressEventArgs e)

@@ -51,7 +51,6 @@ namespace DVLD_project
         private async void searchLicenseControl1_OnSearchClick(int LicenseID)
         {
             lbLicenseID.Text = LicenseID.ToString();         
-            var License = await _licenseClientService.FindLicenseByLicenseIDAsync(LicenseID);
 
             if (await _licenseClientService.IsExpiredAsync(LicenseID, DateTime.Now))
             {
@@ -116,8 +115,8 @@ namespace DVLD_project
             var Detain = await _detainedLicenseClientService.FindByDetainIdAsync(int.Parse(lbDetainID.Text));
             var License = await _licenseClientService.FindLicenseByLicenseIDAsync(Detain.LicenseId);
             var Driver = await _driverClientService.FindDriverByIDAsync(License.DriverId);
-            await _licenseClientService.ActivateLicenseAsync(License.LicenseId);
-            var App = await _applicationClientService.AddApplication(new ApplicationDTO
+            var ActivateTask = _licenseClientService.ActivateLicenseAsync(License.LicenseId);
+            var AppTask = _applicationClientService.AddApplication(new ApplicationDTO
             {
                 ApplicantPersonId = Driver.PersonId,
                 ApplicationDate = DateTime.Now,
@@ -125,8 +124,10 @@ namespace DVLD_project
                 ApplicationStatus = 3,
                 LastStatusDate = DateTime.Now,
                 PaidFees = 15,
-                CreatedByUserId = CurrentUser.user.UserId          
-            });          
+                CreatedByUserId = CurrentUser.user.UserId
+            });
+            await Task.WhenAll(AppTask,ActivateTask);
+            var App = AppTask.Result;          
             
             lbReleaseAppID.Text = App.ApplicationId.ToString();
             Detain.ReleaseApplicationId = App.ApplicationId;    

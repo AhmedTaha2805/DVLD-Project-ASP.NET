@@ -16,8 +16,7 @@ namespace DVLD_project
         public frmPersonDetails(int id)
         {
             InitializeComponent();
-            _id = id;
-            personDetailsControl1.LoadPersonInfo(id);
+            _id = id;        
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -25,5 +24,9 @@ namespace DVLD_project
             this.Close();
         }
 
+        private async void frmPersonDetails_Load(object sender, EventArgs e)
+        {
+            await personDetailsControl1.LoadPersonInfo(_id);
+        }
     }
 }
