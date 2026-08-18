@@ -1,12 +1,7 @@
-﻿using ApplicationBuisnessLayer;
+﻿
 using CurrentUserInformation;
-using DriversBuisnessLayer;
 using DTOs;
 using DVLD_project.Services;
-using InternationalLicensesBuisnessLayer;
-using LicenseClassesBuisnessLayer;
-using LicensesBuisnessLayer;
-using PeopleBuisnessLayer;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

@@ -1,10 +1,8 @@
-﻿using ApplicationBuisnessLayer;
+﻿
 using CurrentUserInformation;
 using DTOs;
 using DVLD_project.Services;
-using LicenseClassesBuisnessLayer;
-using LocalDrivingLicenseApplicationsBuisnessLayer;
-using PeopleBuisnessLayer;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,7 +13,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using TestAppointmentsBuisnessLayer;
+
 
 namespace DVLD_project
 {

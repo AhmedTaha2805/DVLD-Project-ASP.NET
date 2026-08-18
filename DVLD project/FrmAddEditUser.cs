@@ -1,6 +1,5 @@
 ﻿using DTOs;
 using DVLD_project.Services;
-using PeopleBuisnessLayer;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using UsersBuisnessLayer;
+using BCrypt.Net;
 
 namespace DVLD_project
 {
@@ -70,15 +69,15 @@ namespace DVLD_project
                 await personDetailsWithFilter1.LoadPersonInfo(User.PersonId);
                 lbUserID.Text = User.UserId.ToString();
                 txtUsername.Text = User.UserName;
-                txtPassword.Text = User.Password;
-                txtConfirmPassword.Text = User.Password;
+                //txtPassword.Text = User.Password;
+                //txtConfirmPassword.Text = User.Password;
                 chIsActive.Checked = User.IsActive;
             }
         }
 
         private async Task AddUser()
         {
-            var user = await _userClientService.AddUserAsync(new UserDTO
+            var user = await _userClientService.AddUserAsync(new CreateUpdateUserDTO
             {
                 PersonId = personDetailsWithFilter1.GetPersonID(),
                 UserName = txtUsername.Text,
@@ -90,7 +89,7 @@ namespace DVLD_project
 
         private async Task UpdateUser()
         {
-            await _userClientService.UpdateUserAsync(new UserDTO
+            await _userClientService.UpdateUserAsync(new CreateUpdateUserDTO
             {
                 UserId = UserID,
                 UserName = txtUsername.Text,

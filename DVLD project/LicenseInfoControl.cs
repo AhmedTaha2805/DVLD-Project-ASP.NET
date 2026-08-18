@@ -1,10 +1,4 @@
-﻿using ApplicationBuisnessLayer;
-using DriversBuisnessLayer;
-using DVLD_project.Services;
-using LicenseClassesBuisnessLayer;
-using LicensesBuisnessLayer;
-using LocalDrivingLicenseApplicationsBuisnessLayer;
-using PeopleBuisnessLayer;
+﻿using DVLD_project.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
 
 namespace DVLD_project
 {

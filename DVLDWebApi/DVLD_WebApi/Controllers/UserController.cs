@@ -17,7 +17,7 @@ namespace DVLD_WebApi.Controllers
             }
 
         [HttpPost]
-        public async Task<IActionResult> AddUser(UserDTO dto)
+        public async Task<IActionResult> AddUser(CreateUpdateUserDTO dto)
         {
             var user = await _userService.AddUserAsync(dto);
 
@@ -65,7 +65,7 @@ namespace DVLD_WebApi.Controllers
 
         [HttpPut]
         public async Task<IActionResult> UpdateUser(
-            UserDTO dto)
+            CreateUpdateUserDTO dto)
         {
   
                 await _userService.UpdateUserAsync(dto);

@@ -2,6 +2,7 @@
 using DVLD_WebApi.CustomExceptions;
 using DVLD_WebApi.Data;
 using DVLD_WebApi.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace DVLD_WebApi.Services
@@ -24,19 +25,19 @@ namespace DVLD_WebApi.Services
                     UserId = u.UserId,
                     PersonId = u.PersonId,
                     UserName = u.UserName,
-                    Password = u.Password,
+                    
                     IsActive = u.IsActive
                 })
                 .ToListAsync();
         }
 
-        public async Task<UserDTO> AddUserAsync(UserDTO dto)
+        public async Task<CreateUpdateUserDTO> AddUserAsync(CreateUpdateUserDTO dto)
         {
             var user = new User
             {
                 PersonId = dto.PersonId,
                 UserName = dto.UserName,
-                Password = dto.Password,
+                Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                 IsActive = dto.IsActive
             };
 
@@ -63,7 +64,7 @@ namespace DVLD_WebApi.Services
                 UserId = user.UserId,
                 PersonId = user.PersonId,
                 UserName = user.UserName,
-                Password = user.Password,
+                
                 IsActive = user.IsActive
             };
         }
@@ -75,10 +76,10 @@ namespace DVLD_WebApi.Services
             var user = await _context.Users
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u =>
-                    u.UserName == username &&
-                    u.Password == password);
+                    u.UserName == username
+                    );
 
-            if (user == null)
+            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
                 throw new NotFoundException("User not found.");
 
             return new UserDTO
@@ -86,7 +87,6 @@ namespace DVLD_WebApi.Services
                 UserId = user.UserId,
                 PersonId = user.PersonId,
                 UserName = user.UserName,
-                Password = user.Password,
                 IsActive = user.IsActive
             };
         }
@@ -98,7 +98,7 @@ namespace DVLD_WebApi.Services
         }
 
         public async Task UpdateUserAsync(
-            UserDTO dto)
+            CreateUpdateUserDTO dto)
         {
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.UserId == dto.UserId);
@@ -107,7 +107,7 @@ namespace DVLD_WebApi.Services
                 throw new NotFoundException("User not found.");
 
             user.UserName = dto.UserName;
-            user.Password = dto.Password;
+            user.Password = BCrypt.Net.BCrypt.HashPassword(dto.Password);
             user.PersonId = dto.PersonId;
             user.IsActive = dto.IsActive;
 
@@ -126,6 +126,6 @@ namespace DVLD_WebApi.Services
             _context.Users.Remove(user);
 
             await _context.SaveChangesAsync();
-        }
+        }     
     }
 }

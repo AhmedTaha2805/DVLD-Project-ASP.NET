@@ -7,12 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using LocalDrivingLicenseApplicationsBuisnessLayer;
-using ApplicationBuisnessLayer;
-using ApplicationTypesBuisnessLayer;
-using LicenseClassesBuisnessLayer;
-using PeopleBuisnessLayer;
-using UsersBuisnessLayer;
 using DVLD_project.Services;
 
 namespace DVLD_project

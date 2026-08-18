@@ -1,7 +1,6 @@
-﻿using DetainedLicensesBuisnessLayer;
-using DriversBuisnessLayer;
+﻿
 using DVLD_project.Services;
-using PeopleBuisnessLayer;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,7 +10,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using UsersBuisnessLayer;
 
 namespace DVLD_project
 {

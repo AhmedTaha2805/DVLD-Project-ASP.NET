@@ -25,7 +25,7 @@ namespace DVLD_project
 
         private void txtCurrentPass_Validating(object sender, CancelEventArgs e)
         {
-            if (txtCurrentPass.Text!=CurrentUser.user.Password)
+            if (!BCrypt.Net.BCrypt.Verify(txtCurrentPass.Text,CurrentUser.HashPassword))
             {
                 e.Cancel = true;
                 txtCurrentPass.Focus();
@@ -67,7 +67,7 @@ namespace DVLD_project
             }
             else
             {
-                await _userClientService.UpdateUserAsync(new UserDTO
+                await _userClientService.UpdateUserAsync(new CreateUpdateUserDTO
                 {
                     UserId = CurrentUser.user.UserId,
                     UserName = CurrentUser.user.UserName,

@@ -7,8 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using PeopleBuisnessLayer;
-using CountriesBuisnessLayer;
 using System.Text.RegularExpressions;
 using System.IO;
 using DVLD_project.Services;

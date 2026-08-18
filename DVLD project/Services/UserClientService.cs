@@ -21,7 +21,7 @@ namespace DVLD_project.Services
                 new Uri("https://localhost:7008/api/User/");
         }
 
-        public async Task<UserDTO> AddUserAsync(UserDTO dto)
+        public async Task<CreateUpdateUserDTO> AddUserAsync(CreateUpdateUserDTO dto)
         {
             string json =
                 JsonConvert.SerializeObject(dto);
@@ -41,7 +41,7 @@ namespace DVLD_project.Services
             string responseJson =
                 await response.Content.ReadAsStringAsync();
 
-            return JsonConvert.DeserializeObject<UserDTO>(
+            return JsonConvert.DeserializeObject<CreateUpdateUserDTO>(
                 responseJson);
         }
 
@@ -106,8 +106,8 @@ namespace DVLD_project.Services
                 json);
         }
 
-        public async Task<UserDTO> UpdateUserAsync(
-            UserDTO dto)
+        public async Task<CreateUpdateUserDTO> UpdateUserAsync(
+            CreateUpdateUserDTO dto)
         {
             string json =
                 JsonConvert.SerializeObject(dto);
@@ -127,7 +127,7 @@ namespace DVLD_project.Services
             string responseJson =
                 await response.Content.ReadAsStringAsync();
 
-            return JsonConvert.DeserializeObject<UserDTO>(
+            return JsonConvert.DeserializeObject<CreateUpdateUserDTO>(
                 responseJson);
         }
 
@@ -150,7 +150,6 @@ namespace DVLD_project.Services
             dt.Columns.Add("UserID", typeof(int));
             dt.Columns.Add("PersonID", typeof(int));
             dt.Columns.Add("UserName", typeof(string));
-            dt.Columns.Add("Password", typeof(string));
             dt.Columns.Add("IsActive", typeof(bool));
 
             foreach (var user in users)
@@ -159,7 +158,6 @@ namespace DVLD_project.Services
                     user.UserId,
                     user.PersonId,
                     user.UserName,
-                    user.Password,
                     user.IsActive
                 );
             }

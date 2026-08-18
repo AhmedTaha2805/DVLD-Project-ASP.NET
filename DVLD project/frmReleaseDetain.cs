@@ -1,11 +1,7 @@
-﻿using ApplicationBuisnessLayer;
-using CurrentUserInformation;
-using DetainedLicensesBuisnessLayer;
-using DriversBuisnessLayer;
+﻿
 using DTOs;
 using DVLD_project.Services;
-using LicensesBuisnessLayer;
-using PeopleBuisnessLayer;
+using CurrentUserInformation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using UsersBuisnessLayer;
+
 
 namespace DVLD_project
 {

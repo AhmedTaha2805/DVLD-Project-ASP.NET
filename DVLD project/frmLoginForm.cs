@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using UsersBuisnessLayer;
+
 
 namespace DVLD_project
 {
@@ -44,9 +44,10 @@ namespace DVLD_project
                 {
                     Remember = true;
                     Registry.SetValue(CurrentUser.LoginRegisteryPath, "UserName", user.UserName, RegistryValueKind.String);
-                    Registry.SetValue(CurrentUser.LoginRegisteryPath, "Password", user.Password, RegistryValueKind.String);
+                    Registry.SetValue(CurrentUser.LoginRegisteryPath, "Password", txtPassword.Text, RegistryValueKind.String);
                 }
                 CurrentUser.user = user;
+                CurrentUser.HashPassword = BCrypt.Net.BCrypt.HashPassword(txtPassword.Text);
                 FrmMain frm = new FrmMain();
                 this.Hide();
                 frm.ShowDialog();
